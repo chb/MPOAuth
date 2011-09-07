@@ -27,7 +27,7 @@ NSString *kMPOAuthCredentialAccessTokenSecret		= @"kMPOAuthCredentialAccessToken
 NSString *kMPOAuthCredentialSessionHandle			= @"kMPOAuthCredentialSessionHandle";
 
 NSString *kMPOAuthSignatureMethod					= @"kMPOAuthSignatureMethod";
-NSString * const MPOAuthTokenRefreshDateDefaultsKey		= @"MPOAuthAutomaticTokenRefreshLastExpiryDate";
+NSString * const MPOAuthTokenRefreshDateDefaultsKey	= @"MPOAuthAutomaticTokenRefreshLastExpiryDate";
 
 NSString * const MPOAuthBaseURLKey					= @"MPOAuthBaseURL";
 NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
@@ -45,7 +45,7 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 @implementation MPOAuthAPI
 
 - (id)initWithCredentials:(NSDictionary *)inCredentials andBaseURL:(NSURL *)inBaseURL {
-	return [self initWithCredentials:inCredentials authenticationURL:inBaseURL andBaseURL:inBaseURL];
+	return [self initWithCredentials:inCredentials authenticationURL:inBaseURL andBaseURL:inBaseURL autoStart:YES];
 }
 
 - (id)initWithCredentials:(NSDictionary *)inCredentials authenticationURL:(NSURL *)inAuthURL andBaseURL:(NSURL *)inBaseURL {
@@ -76,7 +76,7 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 		self.baseURL = [inConfiguration valueForKey:MPOAuthBaseURLKey];
 		self.authenticationState = MPOAuthAuthenticationStateUnauthenticated;
 		credentials_ = [[MPOAuthCredentialConcreteStore alloc] initWithCredentials:inCredentials forBaseURL:self.baseURL withAuthenticationURL:self.authenticationURL];
-		self.authenticationMethod = [[MPOAuthAuthenticationMethod alloc] initWithAPI:self forURL:self.authenticationURL withConfiguration:inConfiguration];				
+		self.authenticationMethod = [[[MPOAuthAuthenticationMethod alloc] initWithAPI:self forURL:self.authenticationURL withConfiguration:inConfiguration] autorelease];
 		self.signatureScheme = MPOAuthSignatureSchemeHMACSHA1;
 		
 		activeLoaders_ = [[NSMutableArray alloc] initWithCapacity:10];
