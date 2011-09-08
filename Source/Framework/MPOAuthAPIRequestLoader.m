@@ -215,6 +215,30 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 			}
 		}
 	}
+	
+	// handle 403s
+	else if (403 == status) {
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:response forKey:NSLocalizedDescriptionKey];
+		if (!self.credentials.requestToken && !self.credentials.accessToken) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationErrorHasOccurred
+																object:nil
+															  userInfo:userInfo];
+		} else if (self.credentials.requestToken && !self.credentials.accessToken) {
+			[_credentials setRequestToken:nil];
+			[_credentials setRequestTokenSecret:nil];
+			
+			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationRequestTokenRejected
+																object:nil
+															  userInfo:userInfo];
+		} else if (self.credentials.accessToken && !self.credentials.requestToken) {
+			// your access token may be rejected due to a number of reasons so it's up to the
+			// user to decide whether or not to remove them
+			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationAccessTokenRejected
+																object:nil
+															  userInfo:userInfo];
+			
+		}
+	}
 }
 
 @end

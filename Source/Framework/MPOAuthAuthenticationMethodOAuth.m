@@ -120,16 +120,23 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		callbackURL = [self.delegate respondsToSelector:@selector(callbackURLForCompletedUserAuthorization)] ? [self.delegate callbackURLForCompletedUserAuthorization] : nil;
 	}
 	
-	NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:	[oauthResponseParameters objectForKey:	@"oauth_token"], @"oauth_token",
-																													callbackURL, @"oauth_callback",
-																													nil];
-																						
-	userAuthURL = [userAuthURL urlByAddingParameterDictionary:parameters];
-	BOOL delegateWantsToBeInvolved = [self.delegate respondsToSelector:@selector(automaticallyRequestAuthenticationFromURL:withCallbackURL:)];
-	
-	if (!delegateWantsToBeInvolved || (delegateWantsToBeInvolved && [self.delegate automaticallyRequestAuthenticationFromURL:userAuthURL withCallbackURL:callbackURL])) {
-		MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
-		[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
+	NSString *token = [oauthResponseParameters objectForKey:@"oauth_token"];
+	if (token) {
+		NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:token, @"oauth_token", callbackURL, @"oauth_callback", nil];
+		userAuthURL = [userAuthURL urlByAddingParameterDictionary:parameters];
+		BOOL delegateWantsToBeInvolved = [self.delegate respondsToSelector:@selector(automaticallyRequestAuthenticationFromURL:withCallbackURL:)];
+		
+		if (!delegateWantsToBeInvolved || (delegateWantsToBeInvolved && [self.delegate automaticallyRequestAuthenticationFromURL:userAuthURL withCallbackURL:callbackURL])) {
+			MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
+			[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
+		}
+	}
+	else if ([self.delegate respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+		NSError *origError = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:[NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey]];
+		NSDictionary *errDict = [NSDictionary dictionaryWithObjectsAndKeys:
+								 @"Did not receive an oAuth token", NSLocalizedDescriptionKey,
+								 origError, NSUnderlyingErrorKey, nil];
+		[self.delegate authenticationDidFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:errDict]];
 	}
 }
 
