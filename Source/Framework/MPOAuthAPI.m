@@ -54,6 +54,7 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 
 - (id)initWithCredentials:(NSDictionary *)inCredentials authenticationURL:(NSURL *)inAuthURL andBaseURL:(NSURL *)inBaseURL autoStart:(BOOL)aFlag {
 	if ((self = [super init])) {
+		self.defaultHTTPMethod = @"GET";
 		self.authenticationURL = inAuthURL;
 		self.baseURL = inBaseURL;
 		self.authenticationState = MPOAuthAuthenticationStateUnauthenticated;
@@ -72,6 +73,7 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 
 - (id)initWithCredentials:(NSDictionary *)inCredentials withConfiguration:(NSDictionary *)inConfiguration autoStart:(BOOL)aFlag {
 	if ((self = [super init])) {
+		self.defaultHTTPMethod = @"GET";
 		self.authenticationURL = [inConfiguration valueForKey:MPOAuthAuthenticationURLKey];
 		self.baseURL = [inConfiguration valueForKey:MPOAuthBaseURLKey];
 		self.authenticationState = MPOAuthAuthenticationStateUnauthenticated;
@@ -90,6 +92,7 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 
 - (oneway void)dealloc {
 	self.credentials = nil;
+	self.defaultHTTPMethod = nil;
 	self.baseURL = nil;
 	self.authenticationURL = nil;
 	self.authenticationMethod = nil;
@@ -99,6 +102,7 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 }
 
 @synthesize credentials = credentials_;
+@synthesize defaultHTTPMethod = defaultHttpMethod_;
 @synthesize baseURL = baseURL_;
 @synthesize authenticationURL = authenticationURL_;
 @synthesize authenticationMethod = authenticationMethod_;
@@ -142,15 +146,15 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 #pragma mark -
 
 - (void)performMethod:(NSString *)inMethod withTarget:(id)inTarget andAction:(SEL)inAction {
-	[self performMethod:inMethod atURL:self.baseURL withParameters:nil withTarget:inTarget andAction:inAction usingHTTPMethod:@"GET"];
+	[self performMethod:inMethod atURL:self.baseURL withParameters:nil withTarget:inTarget andAction:inAction usingHTTPMethod:defaultHttpMethod_];
 }
 
 - (void)performMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction {
-	[self performMethod:inMethod atURL:self.baseURL withParameters:inParameters withTarget:inTarget andAction:inAction usingHTTPMethod:@"GET"];
+	[self performMethod:inMethod atURL:self.baseURL withParameters:inParameters withTarget:inTarget andAction:inAction usingHTTPMethod:defaultHttpMethod_];
 }
 
 - (void)performMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction {
-	[self performMethod:inMethod atURL:inURL withParameters:inParameters withTarget:inTarget andAction:inAction usingHTTPMethod:@"GET"];
+	[self performMethod:inMethod atURL:inURL withParameters:inParameters withTarget:inTarget andAction:inAction usingHTTPMethod:defaultHttpMethod_];
 }
 
 - (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction {

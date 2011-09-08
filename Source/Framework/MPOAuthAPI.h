@@ -47,6 +47,7 @@ typedef enum {
 @interface MPOAuthAPI : NSObject <MPOAuthAPIInternalClient> {
 @private
 	id <MPOAuthCredentialStore, MPOAuthParameterFactory>		credentials_;
+	NSString													*defaultHttpMethod_;
 	NSURL														*baseURL_;
 	NSURL														*authenticationURL_;
 	MPOAuthAuthenticationMethod									*authenticationMethod_;
@@ -56,6 +57,7 @@ typedef enum {
 }
 
 @property (nonatomic, readonly, retain) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
+@property (nonatomic, readwrite, copy) NSString *defaultHTTPMethod;
 @property (nonatomic, readonly, retain) NSURL *baseURL;
 @property (nonatomic, readonly, retain) NSURL *authenticationURL;
 @property (nonatomic, readwrite, retain) MPOAuthAuthenticationMethod *authenticationMethod;
