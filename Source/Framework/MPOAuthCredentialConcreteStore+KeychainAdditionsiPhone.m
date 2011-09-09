@@ -21,7 +21,6 @@
 	NSString *serverName = [self.baseURL host];
 	NSString *securityDomain = [self.authenticationURL host];
 //	NSString *itemID = [NSString stringWithFormat:@"%@.oauth.%@", [[NSBundle mainBundle] bundleIdentifier], inName];
-	NSDictionary *searchDictionary = nil;
 	NSDictionary *keychainItemAttributeDictionary = [NSDictionary dictionaryWithObjectsAndKeys:	(id)kSecClassInternetPassword, kSecClass,
 																								securityDomain, kSecAttrSecurityDomain,
 																								serverName, kSecAttrServer,
@@ -32,20 +31,19 @@
 													 nil];
 	
 	
-	if ([self findValueFromKeychainUsingName:inName returningItem:&searchDictionary]) {
+	// just try to add the item, checking for an existing item does not reliably work
+	OSStatus success = SecItemAdd( (CFDictionaryRef)keychainItemAttributeDictionary, NULL);
+	
+	// the item already exists, let's update
+	if (success == errSecDuplicateItem) {
 		NSMutableDictionary *updateDictionary = [keychainItemAttributeDictionary mutableCopy];
 		[updateDictionary removeObjectForKey:(id)kSecClass];
 		
 		SecItemUpdate((CFDictionaryRef)keychainItemAttributeDictionary, (CFDictionaryRef)updateDictionary);
 		[updateDictionary release];
-	} else {
-		OSStatus success = SecItemAdd( (CFDictionaryRef)keychainItemAttributeDictionary, NULL);
-		
-		if (success == errSecNotAvailable) {
-			[NSException raise:@"Keychain Not Available" format:@"Keychain Access Not Currently Available"];
-		} else if (success == errSecDuplicateItem) {
-			[NSException raise:@"Keychain duplicate item exception" format:@"Item already exists for %@", keychainItemAttributeDictionary];
-		}
+	}
+	else if (success == errSecNotAvailable) {
+		[NSException raise:@"Keychain Not Available" format:@"Keychain Access Not Currently Available"];
 	}
 }
 

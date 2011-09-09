@@ -108,6 +108,10 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		NSArray *params = [NSArray arrayWithObject:callbackParameter];
 		[self.oauthAPI performMethod:nil atURL:self.oauthRequestTokenURL withParameters:params withTarget:self andAction:@selector(_authenticationRequestForRequestTokenSuccessfulLoad:withData:)];
 	}
+	else if ([self.delegate respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+		NSDictionary *errDict = [NSDictionary dictionaryWithObjectsAndKeys:@"Can not authenticate without oauthRequestTokenURL", NSLocalizedDescriptionKey, nil];
+		[self.delegate authenticationDidFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:errDict]];
+	}
 }
 
 - (void)_authenticationRequestForRequestTokenSuccessfulLoad:(MPOAuthAPIRequestLoader *)inLoader withData:(NSData *)inData {
