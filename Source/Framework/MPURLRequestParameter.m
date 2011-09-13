@@ -41,6 +41,28 @@
 	return foundParameters;
 }
 
++ (NSArray *)parametersFromStringArray:(NSArray *)inArray {
+	NSMutableArray *parameterArray = [[NSMutableArray alloc] init];
+	MPURLRequestParameter *aURLParameter = nil;
+	
+	for (NSString *aString in inArray) {
+		NSArray *parts = [aString componentsSeparatedByString:@"="];
+		if (2 == [parts count]) {
+			aURLParameter = [[MPURLRequestParameter alloc] init];
+			aURLParameter.name = [parts objectAtIndex:0];
+			aURLParameter.value = [parts objectAtIndex:1];
+			
+			[parameterArray addObject:aURLParameter];
+			[aURLParameter release];
+		}
+		else {
+			MPLog(@"Invalid parameter: %@", aString);
+		}
+	}
+	
+	return [parameterArray autorelease];
+}
+
 + (NSArray *)parametersFromDictionary:(NSDictionary *)inDictionary {
 	NSMutableArray *parameterArray = [[NSMutableArray alloc] init];
 	MPURLRequestParameter *aURLParameter = nil;

@@ -168,6 +168,7 @@
 		CBD2655B111F4CEA0003486C /* MPOAuthURLResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD262AE111E410A0003486C /* MPOAuthURLResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CBD2655C111F4CEA0003486C /* MPURLRequestParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD262B0111E410A0003486C /* MPURLRequestParameter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CBD26573111F4DAD0003486C /* MPOAuth.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CBD26517111F4B180003486C /* MPOAuth.framework */; };
+		EE64BEE814200BC8003257C2 /* MPURLRequestParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD262B0111E410A0003486C /* MPURLRequestParameter.h */; settings = {ATTRIBUTES = (); }; };
 		EE715D171416D3350018E02C /* MPOAuthParameterFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD262A9111E410A0003486C /* MPOAuthParameterFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEC5C41F1416D06800E1A349 /* MPOAuthAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD26297111E410A0003486C /* MPOAuthAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEC5C4221416D16000E1A349 /* MPOAuthAuthenticationMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD2629B111E410A0003486C /* MPOAuthAuthenticationMethod.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -707,6 +708,7 @@
 				EEC5C42C1416D16000E1A349 /* MPOAuthURLResponse.h in Headers */,
 				CBB2D6FE11439D0700D757C7 /* MPOAuthAuthenticationMethodXAuth.h in Headers */,
 				EE715D171416D3350018E02C /* MPOAuthParameterFactory.h in Headers */,
+				EE64BEE814200BC8003257C2 /* MPURLRequestParameter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1622,6 +1624,7 @@
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				PRODUCT_NAME = MPOAuthMobile;
 				SDKROOT = iphoneos;
+				WARNING_CFLAGS = "-DDEBUG";
 			};
 			name = Debug;
 		};
@@ -1636,6 +1639,7 @@
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				PRODUCT_NAME = MPOAuthMobile;
 				SDKROOT = iphoneos;
+				WARNING_CFLAGS = "-DDEBUG";
 				ZERO_LINK = NO;
 			};
 			name = Release;

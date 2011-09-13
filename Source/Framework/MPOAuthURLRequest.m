@@ -22,7 +22,19 @@
 - (id)initWithURL:(NSURL *)inURL andParameters:(NSArray *)inParameters {
 	if ((self = [super init])) {
 		self.url = inURL;
-		_parameters = inParameters ? [inParameters mutableCopy] : [[NSMutableArray alloc] initWithCapacity:10];
+		
+		// check supplied parameters
+		if ([inParameters count] > 0) {
+			if ([[inParameters objectAtIndex:0] isKindOfClass:[MPURLRequestParameter class]]) {
+				_parameters = [inParameters mutableCopy];
+			}
+			else {
+				_parameters = [[MPURLRequestParameter parametersFromStringArray:inParameters] mutableCopy];
+			}
+		}
+		else {
+			_parameters = [[NSMutableArray alloc] initWithCapacity:10];
+		}
 		self.HTTPMethod = @"GET";
 	}
 	return self;

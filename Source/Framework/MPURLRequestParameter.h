@@ -18,6 +18,7 @@
 @property (nonatomic, readwrite, copy) NSString *value;
 
 + (NSArray *)parametersFromString:(NSString *)inString;
++ (NSArray *)parametersFromStringArray:(NSArray *)inArray;
 + (NSArray *)parametersFromDictionary:(NSDictionary *)inDictionary;
 + (NSDictionary *)parameterDictionaryFromString:(NSString *)inString;
 + (NSString *)parameterStringForParameters:(NSArray *)inParameters;
