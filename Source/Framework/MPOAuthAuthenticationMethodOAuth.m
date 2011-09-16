@@ -135,13 +135,6 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 			[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
 		}
 	}
-	else if ([self.delegate respondsToSelector:@selector(authenticationDidFailWithError:)]) {
-		NSError *origError = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:[NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey]];
-		NSDictionary *errDict = [NSDictionary dictionaryWithObjectsAndKeys:
-								 @"Did not receive an oAuth token", NSLocalizedDescriptionKey,
-								 origError, NSUnderlyingErrorKey, nil];
-		[self.delegate authenticationDidFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:errDict]];
-	}
 }
 
 - (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error {
