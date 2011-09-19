@@ -56,6 +56,9 @@
 	}
 	
 	// we already have an access token
+	[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialPassword];
+	[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
+	
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							credentials.accessToken, @"oauth_token",
 							credentials.accessTokenSecret, @"oauth_token_secret",

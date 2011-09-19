@@ -142,6 +142,11 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 }
 
 - (BOOL)isAuthenticated {
+	if (MPOAuthAuthenticationStateUnauthenticated == self.authenticationState) {
+		if (credentials_.accessToken && credentials_.accessTokenSecret) {
+			[self setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
+		}
+	}
 	return (self.authenticationState == MPOAuthAuthenticationStateAuthenticated);
 }
 
