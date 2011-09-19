@@ -7,7 +7,7 @@
 //
 
 #ifdef DEBUG
-	#define MPLog(...) NSLog(__VA_ARGS__)
+	#define MPLog(fmt, ...) NSLog((@"%s (line %d) " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 #else
-	#define MPLog(...) do { } while (0)
+	#define MPLog(...) 
 #endif
