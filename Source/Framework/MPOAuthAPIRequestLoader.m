@@ -63,6 +63,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 	[super dealloc];
 }
 
+@synthesize api = _api;
 @synthesize credentials = _credentials;
 @synthesize oauthRequest = _oauthRequest;
 @synthesize oauthResponse = _oauthResponse;
@@ -133,7 +134,8 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 	[self _interrogateResponseForOAuthData];
 
 	if (_action) {
-		MPLog(@"Target: %@, action: %@", _target, NSStringFromSelector(_action));
+		MPLog(@"Action: %@", NSStringFromSelector(_action));
+		MPLog(@"Target: %@", _target);
 		if ([_target conformsToProtocol:@protocol(MPOAuthAPIInternalClient)]) {
 			[_target performSelector:_action withObject:self withObject:self.data];
 		} else {
@@ -164,13 +166,13 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 						[_credentials setRequestTokenSecret:nil];
 						
 						[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationRequestTokenRejected
-																			object:nil
+																			object:_api
 																		  userInfo:foundParameters];
 					} else if (self.credentials.accessToken && !self.credentials.requestToken) {
 						// your access token may be invalid due to a number of reasons so it's up to the
 						// user to decide whether or not to remove them
 						[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationAccessTokenRejected
-																			object:nil
+																			object:_api
 																		  userInfo:foundParameters];
 						
 					}						
@@ -178,7 +180,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 				
 				// something's messed up, so throw an error
 				[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationErrorHasOccurred
-																	object:nil
+																	object:_api
 																  userInfo:foundParameters];
 			}
 		} else if ([foundParameters objectForKey:@"oauth_token"]) {
@@ -191,7 +193,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 					[_credentials setRequestTokenSecret:[foundParameters objectForKey:@"oauth_token_secret"]];
 					
 					[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationRequestTokenReceived
-																		object:nil
+																		object:_api
 																	  userInfo:foundParameters];
 					
 				} else if (!self.credentials.accessToken && self.credentials.requestToken) {
@@ -201,7 +203,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 					[_credentials setAccessTokenSecret:[foundParameters objectForKey:@"oauth_token_secret"]];
 					
 					[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationAccessTokenReceived
-																		object:nil
+																		object:_api
 																	  userInfo:foundParameters];
 					
 				} else if (self.credentials.accessToken && !self.credentials.requestToken) {
@@ -210,7 +212,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 					[_credentials setAccessTokenSecret:[foundParameters objectForKey:@"oauth_token_secret"]];
 					
 					[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationAccessTokenRefreshed
-																		object:nil
+																		object:_api
 																	  userInfo:foundParameters];
 				}
 			}
@@ -222,20 +224,20 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:(response ? response : @"Forbidden") forKey:NSLocalizedDescriptionKey];
 		if (!self.credentials.requestToken && !self.credentials.accessToken) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationErrorHasOccurred
-																object:nil
+																object:_api
 															  userInfo:userInfo];
 		} else if (self.credentials.requestToken && !self.credentials.accessToken) {
 			[_credentials setRequestToken:nil];
 			[_credentials setRequestTokenSecret:nil];
 			
 			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationRequestTokenRejected
-																object:nil
+																object:_api
 															  userInfo:userInfo];
 		} else if (self.credentials.accessToken && !self.credentials.requestToken) {
 			// your access token may be rejected due to a number of reasons so it's up to the
 			// user to decide whether or not to remove them
 			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationAccessTokenRejected
-																object:nil
+																object:_api
 															  userInfo:userInfo];
 			
 		}
