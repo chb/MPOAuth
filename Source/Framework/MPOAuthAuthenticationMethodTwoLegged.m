@@ -64,8 +64,12 @@
 							credentials.accessTokenSecret, @"oauth_token_secret",
 							nil];
 	[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationOAuthCredentialsReady
-														object:nil
+														object:self.oauthAPI
 													  userInfo:params];
+	
+	if ([delegate_ respondsToSelector:@selector(authenticationDidSucceed)]) {
+		[delegate_ authenticationDidSucceed];
+	}
 }
 
 - (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData
@@ -87,15 +91,19 @@
 		[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
 		
 		[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationOAuthCredentialsReady
-															object:nil
+															object:self.oauthAPI
 														  userInfo:params];
+		
+		if ([delegate_ respondsToSelector:@selector(authenticationDidSucceed)]) {
+			[delegate_ authenticationDidSucceed];
+		}
 	}
 	
-	// nope, we failed
-	else {
-		[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationErrorHasOccurred
-															object:nil
-														  userInfo:[NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey]];
+	// no tokens for us
+	else if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:(inLoader.responseString ? inLoader.responseString : @"No Answer") forKey:NSLocalizedDescriptionKey];
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:userInfo];
+		[delegate_ authenticationDidFailWithError:error];
 	}
 }
 

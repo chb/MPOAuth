@@ -24,6 +24,7 @@
 @protocol MPOAuthAuthenticationMethodTwoLeggedDelegate <NSObject>
 
 @optional
+- (void)authenticationDidSucceed;
 - (void)authenticationDidFailWithError:(NSError *)error;
 
 @end

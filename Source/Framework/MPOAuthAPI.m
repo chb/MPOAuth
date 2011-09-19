@@ -103,6 +103,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[super dealloc];
 }
 
+@synthesize authDelegate = _authDelegate;
 @synthesize credentials = credentials_;
 @synthesize defaultHTTPMethod = defaultHttpMethod_;
 @synthesize baseURL = baseURL_;
@@ -132,6 +133,21 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	}
 	
 	[(MPOAuthCredentialConcreteStore *)credentials_ setSignatureMethod:methodString];
+}
+
+- (void)setAuthenticationMethod:(MPOAuthAuthenticationMethod *)newMethod {
+	if (newMethod != authenticationMethod_) {
+		//if ([authenticationMethod_ respondsToSelector:@selector(setDelegate:)]) {
+		//	[authenticationMethod_ performSelector:@selector(setDelegate:) withObject:nil];
+		//}
+		
+		[authenticationMethod_ release];
+		authenticationMethod_ = [newMethod retain];
+		
+		if ([authenticationMethod_ respondsToSelector:@selector(setDelegate:)]) {
+			[authenticationMethod_ performSelector:@selector(setDelegate:) withObject:self];
+		}
+	}
 }
 
 #pragma mark -
@@ -182,6 +198,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	MPOAuthAPIRequestLoader *loader = [[MPOAuthAPIRequestLoader alloc] initWithRequest:aRequest];
 	
 	aRequest.HTTPMethod = inHTTPMethod;
+	loader.api = self;
 	loader.credentials = self.credentials;
 	loader.target = inTarget;
 	loader.action = inAction ? inAction : @selector(_performedLoad:receivingData:);
@@ -201,6 +218,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	MPOAuthURLRequest *aRequest = [[MPOAuthURLRequest alloc] initWithURLRequest:inRequest];
 	MPOAuthAPIRequestLoader *loader = [[MPOAuthAPIRequestLoader alloc] initWithRequest:aRequest];
 	
+	loader.api = self;
 	loader.credentials = self.credentials;
 	loader.target = inTarget;
 	loader.action = inAction ? inAction : @selector(_performedLoad:receivingData:);
@@ -224,7 +242,8 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	NSURL *requestURL = [NSURL URLWithString:inMethod relativeToURL:inURL];
 	MPOAuthURLRequest *aRequest = [[MPOAuthURLRequest alloc] initWithURL:requestURL andParameters:inParameters];
 	MPOAuthAPIRequestLoader *loader = [[MPOAuthAPIRequestLoader alloc] initWithRequest:aRequest];
-
+	
+	loader.api = self;
 	loader.credentials = self.credentials;
 	[loader loadSynchronously:YES];
 	
@@ -232,6 +251,42 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[aRequest release];
 	
 	return loader.data;
+}
+
+#pragma mark -
+
+- (NSURL *)callbackURLForCompletedUserAuthorization {
+	if ([_authDelegate respondsToSelector:@selector(callbackURLForCompletedUserAuthorization)]) {
+		return [_authDelegate callbackURLForCompletedUserAuthorization];
+	}
+	return nil;
+}
+
+- (BOOL)automaticallyRequestAuthenticationFromURL:(NSURL *)inAuthURL withCallbackURL:(NSURL *)inCallbackURL {
+	if ([_authDelegate respondsToSelector:@selector(automaticallyRequestAuthenticationFromURL:withCallbackURL:)]) {
+		return [_authDelegate automaticallyRequestAuthenticationFromURL:inAuthURL withCallbackURL:inCallbackURL];
+	}
+	return NO;
+}
+
+- (NSString *)oauthVerifierForCompletedUserAuthorization {
+	if ([_authDelegate respondsToSelector:@selector(oauthVerifierForCompletedUserAuthorization)]) {
+		return [_authDelegate oauthVerifierForCompletedUserAuthorization];
+	}
+	return nil;
+}
+
+
+- (void)authenticationDidSucceed {
+	if ([_authDelegate respondsToSelector:@selector(authenticationDidSucceed)]) {
+		[_authDelegate authenticationDidSucceed];
+	}
+}
+
+- (void)authenticationDidFailWithError:(NSError *)error {
+	if ([_authDelegate respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+		[_authDelegate authenticationDidFailWithError:error];
+	}
 }
 
 #pragma mark -

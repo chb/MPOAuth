@@ -40,12 +40,25 @@ typedef enum {
 	MPOAuthAuthenticationStateAuthenticated			= 2
 } MPOAuthAuthenticationState;
 
+@protocol MPOAuthAPIAuthDelegate <NSObject>
+
+@optional
+- (NSString *)oauthVerifierForCompletedUserAuthorization;
+- (NSURL *)callbackURLForCompletedUserAuthorization;
+- (BOOL)automaticallyRequestAuthenticationFromURL:(NSURL *)inAuthURL withCallbackURL:(NSURL *)inCallbackURL;
+
+- (void)authenticationDidSucceed;
+- (void)authenticationDidFailWithError:(NSError *)error;
+
+@end
+
 @protocol MPOAuthAPIInternalClient
 @end
 
 @class MPOAuthAuthenticationMethod;
 
 @interface MPOAuthAPI : NSObject <MPOAuthAPIInternalClient> {
+	id <MPOAuthAPIAuthDelegate>										_authDelegate;
 @private
 	id <MPOAuthCredentialStore, MPOAuthParameterFactory>		credentials_;
 	NSString													*defaultHttpMethod_;
@@ -57,6 +70,7 @@ typedef enum {
 	MPOAuthAuthenticationState									oauthAuthenticationState_;
 }
 
+@property (nonatomic, readwrite, assign) id <MPOAuthAPIAuthDelegate> authDelegate;
 @property (nonatomic, readonly, retain) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
 @property (nonatomic, readwrite, copy) NSString *defaultHTTPMethod;
 @property (nonatomic, readonly, retain) NSURL *baseURL;
