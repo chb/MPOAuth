@@ -35,7 +35,7 @@
 	
 	// no access token, get a new one
 	if (!credentials.accessToken || !credentials.accessTokenSecret) {
-		MPLog(@"--> Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
+		MPLog(@"Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
 		NSString *username = [[self.oauthAPI credentials] username];
 		NSString *password = [[self.oauthAPI credentials] password];
 		NSAssert(username, @"AuthTwoLegged requires a Username credential");
@@ -77,11 +77,6 @@
 	NSDictionary *params = [MPURLRequestParameter parameterDictionaryFromString:inLoader.responseString];
 	accessToken = [params objectForKey:@"oauth_token"];
 	accessTokenSecret = [params objectForKey:@"oauth_token_secret"];
-	
-	// inform delegate
-	if ([delegate_ respondsToSelector:@selector(authenticationDidReturnParameter:)]) {
-		[delegate_ performSelector:@selector(authenticationDidReturnParameter:) withObject:params];
-	}
 	
 	// yes, we got tokens!
 	if (accessToken && accessTokenSecret) {

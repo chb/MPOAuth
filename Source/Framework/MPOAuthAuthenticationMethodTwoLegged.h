@@ -24,7 +24,6 @@
 @protocol MPOAuthAuthenticationMethodTwoLeggedDelegate <NSObject>
 
 @optional
-- (void)authenticationDidReturnParameter:(NSDictionary *)params;
 - (void)authenticationDidFailWithError:(NSError *)error;
 
 @end

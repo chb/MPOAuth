@@ -131,8 +131,9 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	[self _interrogateResponseForOAuthData];
-	
+
 	if (_action) {
+		MPLog(@"Target: %@, action: %@", _target, NSStringFromSelector(_action));
 		if ([_target conformsToProtocol:@protocol(MPOAuthAPIInternalClient)]) {
 			[_target performSelector:_action withObject:self withObject:self.data];
 		} else {
@@ -183,7 +184,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 		} else if ([foundParameters objectForKey:@"oauth_token"]) {
 			NSString *aParameterValue = nil;
 			MPLog(@"foundParameters = %@", foundParameters);
-
+			
 			if ([foundParameters count] && (aParameterValue = [foundParameters objectForKey:@"oauth_token"])) {
 				if (!self.credentials.requestToken && !self.credentials.accessToken) {
 					[_credentials setRequestToken:aParameterValue];
@@ -218,7 +219,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 	
 	// handle 403s
 	else if (403 == status) {
-		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:response forKey:NSLocalizedDescriptionKey];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:(response ? response : @"Forbidden") forKey:NSLocalizedDescriptionKey];
 		if (!self.credentials.requestToken && !self.credentials.accessToken) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationErrorHasOccurred
 																object:nil

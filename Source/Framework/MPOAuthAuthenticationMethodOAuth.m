@@ -38,6 +38,7 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 - (void)_authenticationRequestForRequestToken;
 - (void)_authenticationRequestForUserPermissionsConfirmationAtURL:(NSURL *)inURL;
 - (void)_authenticationRequestForAccessToken;
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error;
 
 @end
 
@@ -134,6 +135,12 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 			MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
 			[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
 		}
+	}
+	else {
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey];
+		NSUInteger status = [(NSHTTPURLResponse *)[inLoader.oauthResponse urlResponse] statusCode];
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
+		[self loader:inLoader didFailWithError:error];
 	}
 }
 
