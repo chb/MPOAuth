@@ -29,9 +29,19 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 }
 
 - (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL withConfiguration:(NSDictionary *)inConfig {
+	return [self initWithAPI:inAPI forURL:inURL withConfiguration:inConfig preferredMethod:nil];
+}
+
+- (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL withConfiguration:(NSDictionary *)inConfig preferredMethod:(NSString *)inMethod {
 	if ([[self class] isEqual:[MPOAuthAuthenticationMethod class]]) {
 		NSDictionary *configuration = inConfig;
-		Class methodClass = [[self class] _authorizationMethodClassForURL:inURL withConfiguration:&configuration];
+		Class methodClass = nil;
+		if ([inMethod length] > 0) {
+			methodClass = NSClassFromString(inMethod);
+		}
+		if (!methodClass) {
+			methodClass = [[self class] _authorizationMethodClassForURL:inURL withConfiguration:&configuration];
+		}
 		[self release];
 		
 		self = [[methodClass alloc] initWithAPI:inAPI forURL:inURL withConfiguration:configuration];

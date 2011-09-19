@@ -36,7 +36,7 @@ extern NSString * const MPOAuthCredentialSessionHandleKey;
 		self.baseURL = inBaseURL;
 		self.authenticationURL = inAuthenticationURL;
 		
-		NSString *requestToken = [self findValueFromKeychainUsingName:kMPOAuthCredentialRequestToken];
+		NSString *requestToken = [self requestToken] ? [self requestToken] : [self findValueFromKeychainUsingName:kMPOAuthCredentialRequestToken];
 		NSString *requestTokenSecret = [self findValueFromKeychainUsingName:kMPOAuthCredentialRequestTokenSecret];
 		NSString *accessToken = [self findValueFromKeychainUsingName:kMPOAuthCredentialAccessToken];
 		NSString *accessTokenSecret = [self findValueFromKeychainUsingName:kMPOAuthCredentialAccessTokenSecret];

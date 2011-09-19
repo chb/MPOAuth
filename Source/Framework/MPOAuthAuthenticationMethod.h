@@ -23,8 +23,11 @@ extern NSString * const MPOAuthAccessTokenURLKey;
 
 - (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL;
 - (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL withConfiguration:(NSDictionary *)inConfig;
+- (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL withConfiguration:(NSDictionary *)inConfig preferredMethod:(NSString *)inMethod;
 - (void)authenticate;
 
 - (void)setTokenRefreshInterval:(NSTimeInterval)inTimeInterval;
 - (void)refreshAccessToken;
+
+
 @end
