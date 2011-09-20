@@ -134,8 +134,6 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 	[self _interrogateResponseForOAuthData];
 
 	if (_action) {
-		MPLog(@"Action: %@", NSStringFromSelector(_action));
-		MPLog(@"Target: %@", _target);
 		if ([_target conformsToProtocol:@protocol(MPOAuthAPIInternalClient)]) {
 			[_target performSelector:_action withObject:self withObject:self.data];
 		} else {

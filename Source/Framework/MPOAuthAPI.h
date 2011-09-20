@@ -40,6 +40,14 @@ typedef enum {
 	MPOAuthAuthenticationStateAuthenticated			= 2
 } MPOAuthAuthenticationState;
 
+@protocol MPOAuthAPILoadDelegate <NSObject>
+
+// one of the two will be called when the connection finishes
+- (void)connectionFinishedWithResponse:(NSURLResponse *)aResponse data:(NSData *)inData;
+- (void)connectionFailedWithResponse:(NSURLResponse *)aResponse error:(NSError *)inError;
+
+@end
+
 @protocol MPOAuthAPIAuthDelegate <NSObject>
 
 @optional
@@ -58,7 +66,8 @@ typedef enum {
 @class MPOAuthAuthenticationMethod;
 
 @interface MPOAuthAPI : NSObject <MPOAuthAPIInternalClient> {
-	id <MPOAuthAPIAuthDelegate>										_authDelegate;
+	id <MPOAuthAPIAuthDelegate>									_authDelegate;
+	id <MPOAuthAPILoadDelegate>									_loadDelegate;
 @private
 	id <MPOAuthCredentialStore, MPOAuthParameterFactory>		credentials_;
 	NSString													*defaultHttpMethod_;
@@ -71,6 +80,7 @@ typedef enum {
 }
 
 @property (nonatomic, readwrite, assign) id <MPOAuthAPIAuthDelegate> authDelegate;
+@property (nonatomic, readwrite, assign) id <MPOAuthAPILoadDelegate> loadDelegate;
 @property (nonatomic, readonly, retain) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
 @property (nonatomic, readwrite, copy) NSString *defaultHTTPMethod;
 @property (nonatomic, readonly, retain) NSURL *baseURL;
@@ -89,11 +99,18 @@ typedef enum {
 - (void)authenticate;
 - (BOOL)isAuthenticated;
 
+- (void)performMethod:(NSString *)inMethod withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
+- (void)performMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters delegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
 - (void)performMethod:(NSString *)inMethod withTarget:(id)inTarget andAction:(SEL)inAction;
 - (void)performMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
 - (void)performMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
+
+- (void)performPOSTMethod:(NSString *)inMethod withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
+- (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters delegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
 - (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
 - (void)performPOSTMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
+
+- (void)performURLRequest:(NSURLRequest *)inRequest withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
 - (void)performURLRequest:(NSURLRequest *)inRequest withTarget:(id)inTarget andAction:(SEL)inAction;
 
 - (NSData *)dataForMethod:(NSString *)inMethod;

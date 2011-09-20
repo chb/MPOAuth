@@ -104,6 +104,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 }
 
 @synthesize authDelegate = _authDelegate;
+@synthesize loadDelegate = _loadDelegate;
 @synthesize credentials = credentials_;
 @synthesize defaultHTTPMethod = defaultHttpMethod_;
 @synthesize baseURL = baseURL_;
@@ -113,7 +114,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 @synthesize activeLoaders = activeLoaders_;
 @synthesize authenticationState = oauthAuthenticationState_;
 
-#pragma mark -
+#pragma mark - KVC Overrides
 
 - (void)setSignatureScheme:(MPOAuthSignatureScheme)inScheme {
 	signatureScheme_ = inScheme;
@@ -150,7 +151,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	}
 }
 
-#pragma mark -
+#pragma mark - Authentication
 
 - (void)authenticate {
 	NSAssert(credentials_.consumerKey, @"A Consumer Key is required for use of OAuth.");
@@ -166,7 +167,17 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	return (self.authenticationState == MPOAuthAuthenticationStateAuthenticated);
 }
 
-#pragma mark -
+#pragma mark - Asynchronous Loading
+
+- (void)performMethod:(NSString *)inMethod withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate {
+	self.loadDelegate = aDelegate;
+	[self performMethod:inMethod atURL:self.baseURL withParameters:nil withTarget:self andAction:nil usingHTTPMethod:defaultHttpMethod_];
+}
+
+- (void)performMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters delegate:(id <MPOAuthAPILoadDelegate>)aDelegate {
+	self.loadDelegate = aDelegate;
+	[self performMethod:inMethod atURL:self.baseURL withParameters:inParameters withTarget:self andAction:nil usingHTTPMethod:defaultHttpMethod_];
+}
 
 - (void)performMethod:(NSString *)inMethod withTarget:(id)inTarget andAction:(SEL)inAction {
 	[self performMethod:inMethod atURL:self.baseURL withParameters:nil withTarget:inTarget andAction:inAction usingHTTPMethod:defaultHttpMethod_];
@@ -178,6 +189,17 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 
 - (void)performMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction {
 	[self performMethod:inMethod atURL:inURL withParameters:inParameters withTarget:inTarget andAction:inAction usingHTTPMethod:defaultHttpMethod_];
+}
+
+
+- (void)performPOSTMethod:(NSString *)inMethod withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate {
+	self.loadDelegate = aDelegate;
+	[self performMethod:inMethod atURL:self.baseURL withParameters:nil withTarget:self andAction:nil usingHTTPMethod:@"POST"];
+}
+
+- (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters delegate:(id <MPOAuthAPILoadDelegate>)aDelegate {
+	self.loadDelegate = aDelegate;
+	[self performMethod:inMethod atURL:self.baseURL withParameters:inParameters withTarget:self andAction:nil usingHTTPMethod:@"POST"];
 }
 
 - (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction {
@@ -210,6 +232,11 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[aRequest release];
 }
 
+- (void)performURLRequest:(NSURLRequest *)inRequest withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate {
+	self.loadDelegate = aDelegate;
+	[self performURLRequest:inRequest withTarget:self andAction:nil];
+}
+
 - (void)performURLRequest:(NSURLRequest *)inRequest withTarget:(id)inTarget andAction:(SEL)inAction {
 	if (!inRequest && ![[inRequest URL] path] && ![[inRequest URL] query]) {
 		[NSException raise:@"MPOAuthNilMethodRequestException" format:@"Nil was passed as the method to be performed on %@", inRequest];
@@ -229,6 +256,8 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[loader release];
 	[aRequest release];	
 }
+
+#pragma mark - Synchronous Loading
 
 - (NSData *)dataForMethod:(NSString *)inMethod {
 	return [self dataForURL:self.baseURL andMethod:inMethod withParameters:nil];
@@ -253,7 +282,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	return loader.data;
 }
 
-#pragma mark -
+#pragma mark - Authentication Responses
 
 - (NSURL *)callbackURLForCompletedUserAuthorization {
 	if ([_authDelegate respondsToSelector:@selector(callbackURLForCompletedUserAuthorization)]) {
@@ -289,7 +318,32 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	}
 }
 
-#pragma mark -
+#pragma mark - Standard Load Responses
+
+- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
+	if (_loadDelegate) {
+		NSURLResponse *urlResponse = [[[inLoader.oauthResponse urlResponse] retain] autorelease];
+		NSInteger status = [(NSHTTPURLResponse *)urlResponse statusCode];
+		if (200 == status) {
+			[_loadDelegate connectionFinishedWithResponse:urlResponse data:inData];
+		}
+		else {
+			NSString *errorMessage = inLoader.responseString ? inLoader.responseString : [NSString stringWithFormat:@"%d", status];
+			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorMessage forKey:NSLocalizedDescriptionKey];
+			NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
+			[_loadDelegate connectionFailedWithResponse:urlResponse error:error];
+		}
+	}
+}
+
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error {
+	if (_loadDelegate) {
+		NSURLResponse *urlResponse = [[[inLoader.oauthResponse urlResponse] retain] autorelease];
+		[_loadDelegate connectionFailedWithResponse:urlResponse error:error];
+	}
+}
+
+#pragma mark - Credential Handling
 
 - (id)credentialNamed:(NSString *)inCredentialName {
 	return [self.credentials credentialNamed:inCredentialName];
@@ -307,13 +361,6 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[self.credentials discardOAuthCredentials];
 	
 	self.authenticationState = MPOAuthAuthenticationStateUnauthenticated;
-}
-
-#pragma mark -
-#pragma mark - Private APIs -
-
-- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
-//	NSLog(@"loaded %@, and got %@", inLoader, inData);
 }
 
 @end
