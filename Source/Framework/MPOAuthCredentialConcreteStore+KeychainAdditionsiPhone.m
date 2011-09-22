@@ -76,8 +76,11 @@
 		*outKeychainItemRef = attributesDictionary;
 	}
 	
-	if (status == noErr && foundValue) {
-		foundPassword = [[NSString alloc] initWithData:foundValue encoding:NSUTF8StringEncoding];
+	if (status == noErr) {
+		[attributesDictionary autorelease];
+		if (foundValue) {
+			foundPassword = [[NSString alloc] initWithData:foundValue encoding:NSUTF8StringEncoding];
+		}
 	}
 	
 	return [foundPassword autorelease];
