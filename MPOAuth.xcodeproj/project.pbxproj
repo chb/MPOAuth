@@ -110,7 +110,6 @@
 		CBD262DD111E415D0003486C /* MPOAuthAuthenticationMethodOAuth.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262A0111E410A0003486C /* MPOAuthAuthenticationMethodOAuth.m */; };
 		CBD262DE111E415D0003486C /* MPOAuthConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262A2111E410A0003486C /* MPOAuthConnection.m */; };
 		CBD262DF111E415D0003486C /* MPOAuthCredentiaIConcreteStore+KeychainAdditionsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262A3111E410A0003486C /* MPOAuthCredentiaIConcreteStore+KeychainAdditionsMac.m */; };
-		CBD262E0111E415D0003486C /* MPOAuthCredentialConcreteStore+KeychainAdditionsiPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262A5111E410A0003486C /* MPOAuthCredentialConcreteStore+KeychainAdditionsiPhone.m */; };
 		CBD262E1111E415D0003486C /* MPOAuthCredentialConcreteStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262A7111E410A0003486C /* MPOAuthCredentialConcreteStore.m */; };
 		CBD262E2111E415D0003486C /* MPOAuthSignatureParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262AB111E410A0003486C /* MPOAuthSignatureParameter.m */; };
 		CBD262E3111E415D0003486C /* MPOAuthURLRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262AD111E410A0003486C /* MPOAuthURLRequest.m */; };
@@ -173,6 +172,7 @@
 		EE29C6E11423FF950042EB11 /* MPOAuthAuthenticationMethodTwoLegged.m in Sources */ = {isa = PBXBuildFile; fileRef = EE29C6DB1423FF950042EB11 /* MPOAuthAuthenticationMethodTwoLegged.m */; };
 		EE340F62142711F800EA6B38 /* MPOAuthAuthenticationMethodTwoLegged.h in Headers */ = {isa = PBXBuildFile; fileRef = EE29C6DA1423FF950042EB11 /* MPOAuthAuthenticationMethodTwoLegged.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE340F64142711F900EA6B38 /* MPOAuthAuthenticationMethodTwoLegged.h in Headers */ = {isa = PBXBuildFile; fileRef = EE29C6DA1423FF950042EB11 /* MPOAuthAuthenticationMethodTwoLegged.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE3756D31430BC17002ABE18 /* MPOAuthCredentialConcreteStore+KeychainAdditionsiPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = CBD262A5111E410A0003486C /* MPOAuthCredentialConcreteStore+KeychainAdditionsiPhone.m */; };
 		EE64BEE814200BC8003257C2 /* MPURLRequestParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD262B0111E410A0003486C /* MPURLRequestParameter.h */; settings = {ATTRIBUTES = (); }; };
 		EE715D171416D3350018E02C /* MPOAuthParameterFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD262A9111E410A0003486C /* MPOAuthParameterFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEC5C41F1416D06800E1A349 /* MPOAuthAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = CBD26297111E410A0003486C /* MPOAuthAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1160,7 +1160,6 @@
 				CBD262DD111E415D0003486C /* MPOAuthAuthenticationMethodOAuth.m in Sources */,
 				CBD262DE111E415D0003486C /* MPOAuthConnection.m in Sources */,
 				CBD262DF111E415D0003486C /* MPOAuthCredentiaIConcreteStore+KeychainAdditionsMac.m in Sources */,
-				CBD262E0111E415D0003486C /* MPOAuthCredentialConcreteStore+KeychainAdditionsiPhone.m in Sources */,
 				CBD262E1111E415D0003486C /* MPOAuthCredentialConcreteStore.m in Sources */,
 				CBD262E2111E415D0003486C /* MPOAuthSignatureParameter.m in Sources */,
 				CBD262E3111E415D0003486C /* MPOAuthURLRequest.m in Sources */,
@@ -1173,6 +1172,7 @@
 				CBD262EA111E415D0003486C /* NSURLResponse+Encoding.m in Sources */,
 				CBB2D6FF11439D0700D757C7 /* MPOAuthAuthenticationMethodXAuth.m in Sources */,
 				EE29C6DF1423FF950042EB11 /* MPOAuthAuthenticationMethodTwoLegged.m in Sources */,
+				EE3756D31430BC17002ABE18 /* MPOAuthCredentialConcreteStore+KeychainAdditionsiPhone.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

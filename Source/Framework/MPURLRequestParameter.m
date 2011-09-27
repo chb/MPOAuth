@@ -95,8 +95,9 @@
 			[parameterScanner scanUpToString:@"&" intoString:&value];
 			[parameterScanner scanString:@"&" intoString:NULL];		
 			
-			if (name && value) {
-				[foundParameters setObject:[value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:name];
+			NSString *unescapedValue = [value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+			if (name && unescapedValue) {
+				[foundParameters setObject:unescapedValue forKey:name];
 			}
 		}
 		
