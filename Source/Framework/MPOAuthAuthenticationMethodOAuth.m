@@ -97,9 +97,12 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		MPLog(@"--> Performing Request Token Request: %@", self.oauthRequestTokenURL);
 		
 		// Append the oauth_callbackUrl parameter for requesting the request token
+		NSURL *callbackURL = nil;
 		MPURLRequestParameter *callbackParameter = nil;
 		if (self.delegate && [self.delegate respondsToSelector: @selector(callbackURLForCompletedUserAuthorization)]) {
-			NSURL *callbackURL = [self.delegate callbackURLForCompletedUserAuthorization];
+			callbackURL = [self.delegate callbackURLForCompletedUserAuthorization];
+		}
+		if (callbackURL) {
 			callbackParameter = [[[MPURLRequestParameter alloc] initWithName:@"oauth_callback" andValue:[callbackURL absoluteString]] autorelease];
 		} else {
 			// oob = "Out of bounds"
@@ -107,15 +110,15 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		}
 		
 		NSArray *params = [NSArray arrayWithObject:callbackParameter];
-		[self.oauthAPI performMethod:nil atURL:self.oauthRequestTokenURL withParameters:params withTarget:self andAction:@selector(_authenticationRequestForRequestTokenSuccessfulLoad:withData:)];
+		[self.oauthAPI performMethod:nil atURL:self.oauthRequestTokenURL withParameters:params withTarget:self andAction:nil];
 	}
-	else if ([self.delegate respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+	else if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
 		NSDictionary *errDict = [NSDictionary dictionaryWithObjectsAndKeys:@"Can not authenticate without oauthRequestTokenURL", NSLocalizedDescriptionKey, nil];
-		[self.delegate authenticationDidFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:errDict]];
+		[delegate_ authenticationDidFailWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:errDict]];
 	}
 }
 
-- (void)_authenticationRequestForRequestTokenSuccessfulLoad:(MPOAuthAPIRequestLoader *)inLoader withData:(NSData *)inData {
+- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
 	NSDictionary *oauthResponseParameters = inLoader.oauthResponse.oauthParameters;
 	NSString *xoauthRequestAuthURL = [oauthResponseParameters objectForKey:@"xoauth_request_auth_url"]; // a common custom extension, used by Yahoo!
 	NSURL *userAuthURL = xoauthRequestAuthURL ? [NSURL URLWithString:xoauthRequestAuthURL] : self.oauthAuthorizeTokenURL;
@@ -135,6 +138,11 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 			MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
 			[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
 		}
+		else {
+			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@"User did not authenticate" forKey:NSLocalizedDescriptionKey];
+			NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:200 userInfo:userInfo];
+			[self loader:inLoader didFailWithError:error];
+		}
 	}
 	else {
 		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey];
@@ -145,8 +153,8 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 }
 
 - (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error {
-	if ([self.delegate respondsToSelector:@selector(authenticationDidFailWithError:)]) {
-		[self.delegate authenticationDidFailWithError:error];
+	if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+		[delegate_ authenticationDidFailWithError:error];
 	}
 }
 
@@ -219,11 +227,5 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 	}
 }
 
-#pragma mark -
-#pragma mark - Private APIs -
-
-- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
-	//	NSLog(@"loaded %@, and got %@", inLoader, inData);
-}
 
 @end
