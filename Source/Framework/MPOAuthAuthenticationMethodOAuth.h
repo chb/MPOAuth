@@ -24,6 +24,8 @@ extern NSString * const MPOAuthNotificationRequestTokenRejected;
 	NSURL									*oauthRequestTokenURL_;
 	NSURL									*oauthAuthorizeTokenURL_;
 	BOOL									oauth10aModeActive_;
+	BOOL									restartOnFail_;
+	BOOL									didRestartOnFail_;
 	
 	id <MPOAuthAuthenticationMethodOAuthDelegate> delegate_;
 }

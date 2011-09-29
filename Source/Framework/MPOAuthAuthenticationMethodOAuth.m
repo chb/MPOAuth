@@ -77,6 +77,11 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 
 - (void)authenticate {
 	id <MPOAuthCredentialStore> credentials = [self.oauthAPI credentials];
+	if (restartOnFail_) {
+		MPLog(@"Restarting authentication after fail")
+		didRestartOnFail_ = YES;
+	}
+	restartOnFail_ = NO;
 	
 	if (!credentials.accessToken && !credentials.requestToken) {
 		[self _authenticationRequestForRequestToken];
@@ -118,6 +123,35 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 	}
 }
 
+- (void)_authenticationRequestForUserPermissionsConfirmationAtURL:(NSURL *)userAuthURL {
+#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+	[[UIApplication sharedApplication] openURL:userAuthURL];
+#else
+	[[NSWorkspace sharedWorkspace] openURL:userAuthURL];
+#endif
+}
+
+- (void)_authenticationRequestForAccessToken {
+	NSArray *params = nil;
+	
+	if (self.delegate && [self.delegate respondsToSelector: @selector(oauthVerifierForCompletedUserAuthorization)]) {
+		MPURLRequestParameter *verifierParameter = nil;
+		
+		NSString *verifier = [self.delegate oauthVerifierForCompletedUserAuthorization];
+		if (verifier) {
+			verifierParameter = [[[MPURLRequestParameter alloc] initWithName:@"oauth_verifier" andValue:verifier] autorelease];
+			params = [NSArray arrayWithObject:verifierParameter];
+		}
+	}
+	
+	if (self.oauthGetAccessTokenURL) {
+		MPLog(@"--> Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
+		[self.oauthAPI performMethod:nil atURL:self.oauthGetAccessTokenURL withParameters:params withTarget:self andAction:nil];
+	}
+}
+
+#pragma mark -
+
 - (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
 	NSDictionary *oauthResponseParameters = inLoader.oauthResponse.oauthParameters;
 	NSString *xoauthRequestAuthURL = [oauthResponseParameters objectForKey:@"xoauth_request_auth_url"]; // a common custom extension, used by Yahoo!
@@ -145,43 +179,20 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		}
 	}
 	else {
-		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey];
 		NSUInteger status = [(NSHTTPURLResponse *)[inLoader.oauthResponse urlResponse] statusCode];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:inLoader.responseString forKey:NSLocalizedDescriptionKey];
 		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
 		[self loader:inLoader didFailWithError:error];
 	}
 }
 
 - (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error {
-	if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
+	if (restartOnFail_) {
+//	if (restartOnFail_ && !didRestartOnFail_) {
+		[self authenticate];
+	}
+	else if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
 		[delegate_ authenticationDidFailWithError:error];
-	}
-}
-
-- (void)_authenticationRequestForUserPermissionsConfirmationAtURL:(NSURL *)userAuthURL {
-#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-	[[UIApplication sharedApplication] openURL:userAuthURL];
-#else
-	[[NSWorkspace sharedWorkspace] openURL:userAuthURL];
-#endif
-}
-
-- (void)_authenticationRequestForAccessToken {
-	NSArray *params = nil;
-	
-	if (self.delegate && [self.delegate respondsToSelector: @selector(oauthVerifierForCompletedUserAuthorization)]) {
-		MPURLRequestParameter *verifierParameter = nil;
-
-		NSString *verifier = [self.delegate oauthVerifierForCompletedUserAuthorization];
-		if (verifier) {
-			verifierParameter = [[[MPURLRequestParameter alloc] initWithName:@"oauth_verifier" andValue:verifier] autorelease];
-			params = [NSArray arrayWithObject:verifierParameter];
-		}
-	}
-	
-	if (self.oauthGetAccessTokenURL) {
-		MPLog(@"--> Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
-		[self.oauthAPI performMethod:nil atURL:self.oauthGetAccessTokenURL withParameters:params withTarget:self andAction:nil];
 	}
 }
 
@@ -197,6 +208,7 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 }
 
 - (void)_requestTokenRejected:(NSNotification *)inNotification {
+	restartOnFail_ = YES;
 	[self.oauthAPI removeCredentialNamed:MPOAuthCredentialRequestTokenKey];
 	[self.oauthAPI removeCredentialNamed:MPOAuthCredentialRequestTokenSecretKey];
 }
