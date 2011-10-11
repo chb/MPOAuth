@@ -164,18 +164,22 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 	
 	NSString *token = [oauthResponseParameters objectForKey:@"oauth_token"];
 	if (token) {
-		NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:token, @"oauth_token", callbackURL, @"oauth_callback", nil];
-		userAuthURL = [userAuthURL urlByAddingParameterDictionary:parameters];
-		BOOL delegateWantsToBeInvolved = [self.delegate respondsToSelector:@selector(automaticallyRequestAuthenticationFromURL:withCallbackURL:)];
 		
-		if (!delegateWantsToBeInvolved || (delegateWantsToBeInvolved && [self.delegate automaticallyRequestAuthenticationFromURL:userAuthURL withCallbackURL:callbackURL])) {
-			MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
-			[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
+		// authentication finished
+		if ([self.oauthAPI isAuthenticated]) {
+			if ([delegate_ respondsToSelector:@selector(authenticationDidSucceed)]) {
+				[delegate_ authenticationDidSucceed];
+			}
 		}
 		else {
-			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@"User did not authenticate" forKey:NSLocalizedDescriptionKey];
-			NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:200 userInfo:userInfo];
-			[self loader:inLoader didFailWithError:error];
+			NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:token, @"oauth_token", callbackURL, @"oauth_callback", nil];
+			userAuthURL = [userAuthURL urlByAddingParameterDictionary:parameters];
+			BOOL delegateWantsToBeInvolved = [self.delegate respondsToSelector:@selector(automaticallyRequestAuthenticationFromURL:withCallbackURL:)];
+			
+			if (!delegateWantsToBeInvolved || (delegateWantsToBeInvolved && [self.delegate automaticallyRequestAuthenticationFromURL:userAuthURL withCallbackURL:callbackURL])) {
+				MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
+				[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
+			}
 		}
 	}
 	else {
