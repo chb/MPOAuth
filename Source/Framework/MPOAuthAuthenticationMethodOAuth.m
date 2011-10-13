@@ -104,8 +104,8 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		// Append the oauth_callbackUrl parameter for requesting the request token
 		NSURL *callbackURL = nil;
 		MPURLRequestParameter *callbackParameter = nil;
-		if (self.delegate && [self.delegate respondsToSelector: @selector(callbackURLForCompletedUserAuthorization)]) {
-			callbackURL = [self.delegate callbackURLForCompletedUserAuthorization];
+		if (delegate_ && [delegate_ respondsToSelector: @selector(callbackURLForCompletedUserAuthorization)]) {
+			callbackURL = [delegate_ callbackURLForCompletedUserAuthorization];
 		}
 		if (callbackURL) {
 			callbackParameter = [[[MPURLRequestParameter alloc] initWithName:@"oauth_callback" andValue:[callbackURL absoluteString]] autorelease];
@@ -115,6 +115,21 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		}
 		
 		NSArray *params = [NSArray arrayWithObject:callbackParameter];
+		
+		// additional parameters?
+		if (delegate_ && [delegate_ respondsToSelector: @selector(additionalRequestTokenParameters)]) {
+			NSDictionary *additionalParams = [delegate_ additionalRequestTokenParameters];
+			if ([additionalParams count] > 0) {
+				NSMutableArray *mutParams = [params mutableCopy];
+				for (NSString *key in [additionalParams allKeys]) {
+					MPURLRequestParameter *param = [[[MPURLRequestParameter alloc] initWithName:key andValue:[additionalParams objectForKey:key]] autorelease];
+					[mutParams addObject:param];
+				}
+				params = [mutParams autorelease];
+			}
+		}
+		
+		// perform method
 		[self.oauthAPI performMethod:nil atURL:self.oauthRequestTokenURL withParameters:params withTarget:self andAction:nil];
 	}
 	else if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {

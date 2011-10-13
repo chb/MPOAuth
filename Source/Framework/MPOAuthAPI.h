@@ -52,6 +52,7 @@ typedef enum {
 
 @optional
 - (NSString *)oauthVerifierForCompletedUserAuthorization;
+- (NSDictionary *)additionalRequestTokenParameters;
 - (NSURL *)callbackURLForCompletedUserAuthorization;
 - (BOOL)automaticallyRequestAuthenticationFromURL:(NSURL *)inAuthURL withCallbackURL:(NSURL *)inCallbackURL;
 

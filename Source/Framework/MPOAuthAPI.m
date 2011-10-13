@@ -305,6 +305,12 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	return nil;
 }
 
+- (NSDictionary *)additionalRequestTokenParameters {
+	if ([_authDelegate respondsToSelector:@selector(additionalRequestTokenParameters)]) {
+		return [_authDelegate additionalRequestTokenParameters];
+	}
+	return nil;
+}
 
 - (void)authenticationDidSucceed {
 	if ([_authDelegate respondsToSelector:@selector(authenticationDidSucceed)]) {
