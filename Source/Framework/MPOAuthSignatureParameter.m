@@ -47,6 +47,24 @@
 	return base64EncodedResult;
 }
 
++ (NSString *)HMAC_SHA1DigestForData:(NSData *)inData {
+	CC_SHA1_CTX digestCtx;
+	bzero(&digestCtx, sizeof(CC_SHA1_CTX));
+	unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+	
+	CC_SHA1_Init(&digestCtx);
+	CC_SHA1_Update(&digestCtx, [inData bytes], [inData length]);
+	CC_SHA1_Final(digest, &digestCtx);
+	
+	//Base64 Encoding
+	char base64Digest[32];
+	size_t digestLength = 32;
+	Base64EncodeData(digest, 20, base64Digest, &digestLength);
+	NSData *theData = [NSData dataWithBytes:base64Digest length:digestLength];
+	
+	return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+}
+
 - (id)initWithText:(NSString *)inText andSecret:(NSString *)inSecret forRequest:(MPOAuthURLRequest *)inRequest usingMethod:(NSString *)inMethod {
 	if ([inMethod isEqual:kMPOAuthSignatureMethodHMACSHA1]) {
 		self = [self initUsingHMAC_SHA1WithText:inText andSecret:inSecret forRequest:inRequest];

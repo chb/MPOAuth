@@ -67,56 +67,46 @@
 #pragma mark -
 
 - (NSArray *)nonOAuthParameters {
-	NSArray *oauthParameters = [NSArray arrayWithObjects:@"oauth_signature", @"oauth_nonce", @"oauth_token", @"oauth_consumer_key", @"oauth_timestamp", @"oauth_version", @"oauth_signature_method", nil];
+	NSArray *oauthParameters = [NSArray arrayWithObjects:@"oauth_signature", @"oauth_nonce", @"oauth_token", @"oauth_consumer_key", @"oauth_timestamp", @"oauth_version", @"oauth_signature_method", @"oauth_body_hash", nil];
 	NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"!(name IN %@)", oauthParameters];
 	return [self.parameters filteredArrayUsingPredicate:filterPredicate];
 }
 
-- (NSString *)authorizationHeaderValueFromParameterString:(NSString *)parameterString {
-	NSDictionary *paramsDict = [MPURLRequestParameter parameterDictionaryFromString:parameterString];
-	NSString *signature = [[paramsDict objectForKey:@"oauth_signature"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *nonce = [[paramsDict objectForKey:@"oauth_nonce"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *token = [[paramsDict objectForKey:@"oauth_token"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *consumerKey = [[paramsDict objectForKey:@"oauth_consumer_key"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *timeStamp = [[paramsDict objectForKey:@"oauth_timestamp"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *version = [[paramsDict objectForKey:@"oauth_version"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *method = [[paramsDict objectForKey:@"oauth_signature_method"] stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	NSString *fullAuthString = nil;
-	
-	if (token) {
-		fullAuthString = [NSString stringWithFormat:@"OAuth oauth_token=\"%@\",oauth_consumer_key=\"%@\",oauth_version=\"%@\",oauth_signature_method=\"%@\", oauth_timestamp=\"%@\",oauth_nonce=\"%@\",oauth_signature=\"%@\"", token, consumerKey, version, method, timeStamp, nonce, signature];
-	} else {
-		fullAuthString = [NSString stringWithFormat:@"OAuth oauth_consumer_key=\"%@\",oauth_version=\"%@\",oauth_signature_method=\"%@\", oauth_timestamp=\"%@\",oauth_nonce=\"%@\",oauth_signature=\"%@\"", consumerKey, version, method, timeStamp, nonce, signature];		
+- (NSString *)authorizationHeaderValueFromParameterArray:(NSArray *)parameterArray {
+	NSMutableArray *authParts = [NSMutableArray arrayWithCapacity:[parameterArray count]];
+	for (MPURLRequestParameter *param in parameterArray) {
+		if ([@"oauth_" isEqualToString:[param.name substringToIndex:6]] && param.value) {
+			[authParts addObject:[param URLEncodedParameterString]];
+		}
 	}
-
-	return fullAuthString;
+	
+	NSString *fullAuthString = @"OAuth ";
+	return [fullAuthString stringByAppendingString:[authParts componentsJoinedByString:@","]];
 }
 
 - (NSURLRequest  *)urlRequestSignedWithSecret:(NSString *)inSecret usingMethod:(NSString *)inScheme {
 	NSMutableURLRequest *aRequest = [self.urlRequest mutableCopy];
-	[self.parameters sortUsingSelector:@selector(compare:)];
 
 	if (!aRequest ) {
 		aRequest = [[NSMutableURLRequest alloc] init];
 	}
-	
-	NSString *urlString = nil;
-	NSMutableString *parameterString = [[NSMutableString alloc] initWithString:[MPURLRequestParameter parameterStringForParameters:self.parameters]];
-	MPOAuthSignatureParameter *signatureParameter = [[MPOAuthSignatureParameter alloc] initWithText:parameterString andSecret:inSecret forRequest:self usingMethod:inScheme];
-
-	[parameterString appendFormat:@"&%@", [signatureParameter URLEncodedParameterString]];
 	[aRequest setHTTPMethod:self.HTTPMethod];
 	
-	if ([[self HTTPMethod] isEqualToString:@"GET"] && [self.parameters count]) {
-		urlString = [NSString stringWithFormat:@"%@?%@", [self.url absoluteString], parameterString];
-	} else if  ([[self HTTPMethod] isEqualToString:@"POST"]) {
-		NSArray *nonOauthParameters = [self nonOAuthParameters];
-		urlString = [self.url absoluteString];
-		[aRequest setValue: [self authorizationHeaderValueFromParameterString:parameterString] forHTTPHeaderField:@"Authorization"];
-
-		if ([nonOauthParameters count] && [aRequest HTTPBody]) {
+	NSArray *nonOauthParameters = [self nonOAuthParameters];
+	
+	// a GET call
+	if ([[self HTTPMethod] isEqualToString:@"GET"]) {
+		if ([nonOauthParameters count]) {
+			self.url = [_url urlByAddingParameters:nonOauthParameters];
+		}
+	}
+	
+	// a POST call
+	else if  ([[self HTTPMethod] isEqualToString:@"POST"]) {
+		if ([nonOauthParameters count] > 0 && [aRequest HTTPBody]) {
 			[NSException raise:@"MalformedHTTPPOSTMethodException" format:@"The request has both an HTTP Body and additional parameters. This is not supported."];
-		} else if ([nonOauthParameters count]) {
+		}
+		else if ([nonOauthParameters count] > 0) {
 			NSString *postDataString = [MPURLRequestParameter parameterStringForParameters:nonOauthParameters];
 			NSData *postData = [postDataString dataUsingEncoding:NSUTF8StringEncoding];
 			MPLog(@"postDataString - %@", postDataString);
@@ -125,12 +115,34 @@
 			[aRequest setValue:[NSString stringWithFormat:@"%d", [postData length]] forHTTPHeaderField:@"Content-Length"];
 			[aRequest setHTTPBody:postData];
 		}
-	} else {
+		else if ([aRequest HTTPBody]) {
+			NSString *bodyHash = [MPOAuthSignatureParameter HMAC_SHA1DigestForData:[aRequest HTTPBody]];
+			
+			MPURLRequestParameter *bodyHashParam = [[MPURLRequestParameter alloc] initWithName:@"oauth_body_hash" andValue:bodyHash];
+			[_parameters addObject:bodyHashParam];
+			[bodyHashParam release];
+		}
+	}
+	
+	// unimplemented method
+	else {
 		[NSException raise:@"UnhandledHTTPMethodException" format:@"The requested HTTP method, %@, is not supported", self.HTTPMethod];
 	}
-
-	MPLog( @"urlString - %@", urlString);
-	[aRequest setURL:[NSURL URLWithString:urlString]];
+	
+	// Signing
+	[_parameters sortUsingSelector:@selector(compare:)];
+	NSMutableString *parameterString = [[NSMutableString alloc] initWithString:[MPURLRequestParameter parameterStringForParameters:self.parameters]];
+	MPOAuthSignatureParameter *signatureParameter = [[MPOAuthSignatureParameter alloc] initWithText:parameterString andSecret:inSecret forRequest:self usingMethod:inScheme];
+	
+	[parameterString appendFormat:@"&%@", [signatureParameter URLEncodedParameterString]];
+	
+	// compose the request
+	NSArray *allParameters = [_parameters arrayByAddingObject:signatureParameter];
+	[aRequest setValue:[self authorizationHeaderValueFromParameterArray:allParameters] forHTTPHeaderField:@"Authorization"];		// always use the Authorization Header
+	
+	MPLog(@"URL - %@", self.url);
+	MPLog(@"Headers - %@", [aRequest allHTTPHeaderFields]);
+	[aRequest setURL:self.url];
 	self.urlRequest = aRequest;
 	
 	[parameterString release];
