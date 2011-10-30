@@ -11,14 +11,18 @@
 #if !TARGET_OS_IPHONE || (TARGET_IPHONE_SIMULATOR && !__IPHONE_3_0)
 
 @interface MPOAuthCredentialConcreteStore (KeychainAdditionsMac)
+
 - (NSString *)findValueFromKeychainUsingName:(NSString *)inName returningItem:(SecKeychainItemRef *)outKeychainItemRef;
+
 @end
+
 
 @implementation MPOAuthCredentialConcreteStore (KeychainAdditions)
 
 - (void)addToKeychainUsingName:(NSString *)inName andValue:(NSString *)inValue {
 	NSString *serverName = [self.baseURL host];
 	NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+	bundleID = bundleID ? bundleID : @"org.unknown";						// the test bundle does not get an id??
 	NSString *securityDomain = [self.authenticationURL host];
 	NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", bundleID, inName];
 	SecKeychainItemRef existingKeychainItem = NULL;
@@ -28,7 +32,7 @@
 		SecKeychainItemDelete(existingKeychainItem);
 	}
 	
-	SecKeychainAddInternetPassword(NULL /* default keychain */,
+	OSStatus status = SecKeychainAddInternetPassword(NULL /* default keychain */,
 								   [serverName length], [serverName UTF8String],
 								   [securityDomain length], [securityDomain UTF8String],
 								   [uniqueName length], [uniqueName UTF8String],	/* account name */
@@ -38,6 +42,11 @@
 								   kSecAuthenticationTypeDefault,
 								   [inValue length], [inValue UTF8String],
 								   NULL);
+	if (errSecSuccess != status) {
+		CFStringRef errStr = SecCopyErrorMessageString(status, NULL);
+		NSLog(@"Failed to add item to keychain: %@", (__bridge NSString *)errStr);
+		CFRelease(errStr);
+	}
 }
 
 - (NSString *)findValueFromKeychainUsingName:(NSString *)inName {
@@ -49,6 +58,7 @@
 	NSString *serverName = [self.baseURL host];
 	NSString *securityDomain = [self.authenticationURL host];
 	NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+	bundleID = bundleID ? bundleID : @"org.unknown";						// the test bundle does not get an id??
 	NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", bundleID, inName];
 	
 	UInt32 passwordLength = 0;
@@ -65,13 +75,16 @@
 													  (UInt32 *)&passwordLength,
 													  (void **)&passwordString,
 													  outKeychainItemRef);
-	
 	if (status == noErr && passwordLength) {
 		NSData *passwordStringData = [NSData dataWithBytes:passwordString length:passwordLength];
 		foundPassword = [[NSString alloc] initWithData:passwordStringData encoding:NSUTF8StringEncoding];
 	}
 	
-	return [foundPassword autorelease];
+	if (passwordString) {
+		(void)SecKeychainItemFreeContent(NULL, (void *)passwordString);
+	}
+	
+	return foundPassword;
 }
 
 - (void)removeValueFromKeychainUsingName:(NSString *)inName {

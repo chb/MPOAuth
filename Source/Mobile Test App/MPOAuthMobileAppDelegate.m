@@ -31,11 +31,6 @@
 }
 
 
-- (void)dealloc {
-	self.navigationController = nil;
-	self.window = nil;
-	[super dealloc];
-}
 
 #pragma mark - MPOAuthAPIDelegate Methods -
 

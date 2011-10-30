@@ -9,12 +9,9 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MPOAuthURLResponse : NSObject {
-	NSURLResponse	*_urlResponse;
-	NSDictionary	*_oauthParameters;
-}
+@interface MPOAuthURLResponse : NSObject
 
-@property (nonatomic, readonly, retain) NSURLResponse *urlResponse;
-@property (nonatomic, readonly, retain) NSDictionary *oauthParameters;
-
+@property (nonatomic, readonly, strong) NSURLResponse *urlResponse;
+@property (nonatomic, readonly, strong) NSDictionary *oauthParameters;
+ 
 @end

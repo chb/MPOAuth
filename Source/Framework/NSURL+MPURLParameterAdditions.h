@@ -18,4 +18,5 @@
 
 - (BOOL)domainMatches:(NSString *)inString;
 
+
 @end

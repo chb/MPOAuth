@@ -14,10 +14,19 @@
 #import "NSString+URLEscapingAdditions.h"
 
 @interface MPOAuthURLRequest ()
-@property (nonatomic, readwrite, retain) NSURLRequest *urlRequest;
+
+@property (nonatomic, readwrite, strong) NSURLRequest *urlRequest;
+
 @end
 
+
 @implementation MPOAuthURLRequest
+
+@synthesize url = _url;
+@synthesize HTTPMethod = _httpMethod;
+@synthesize urlRequest = _urlRequest;
+@synthesize parameters = _parameters;
+
 
 - (id)initWithURL:(NSURL *)inURL andParameters:(NSArray *)inParameters {
 	if ((self = [super init])) {
@@ -43,26 +52,14 @@
 - (id)initWithURLRequest:(NSURLRequest *)inRequest {
 	if ((self = [super init])) {
 		self.url = [[inRequest URL] urlByRemovingQuery];
-		self.parameters = [[[MPURLRequestParameter parametersFromString:[[inRequest URL] query]] mutableCopy] autorelease];
+		self.parameters = [[MPURLRequestParameter parametersFromString:[[inRequest URL] query]] mutableCopy];
 		self.HTTPMethod = [inRequest HTTPMethod];
-		self.urlRequest = [[inRequest mutableCopy] autorelease];
+		self.urlRequest = [inRequest mutableCopy];
 	}
 	return self;
 }
 
-- (oneway void)dealloc {
-	self.url = nil;
-	self.HTTPMethod = nil;
-	self.urlRequest = nil;
-	self.parameters = nil;
-	
-	[super dealloc];
-}
 
-@synthesize url = _url;
-@synthesize HTTPMethod = _httpMethod;
-@synthesize urlRequest = _urlRequest;
-@synthesize parameters = _parameters;
 
 #pragma mark -
 
@@ -120,7 +117,6 @@
 			
 			MPURLRequestParameter *bodyHashParam = [[MPURLRequestParameter alloc] initWithName:@"oauth_body_hash" andValue:bodyHash];
 			[_parameters addObject:bodyHashParam];
-			[bodyHashParam release];
 		}
 	}
 	
@@ -145,9 +141,6 @@
 	[aRequest setURL:self.url];
 	self.urlRequest = aRequest;
 	
-	[parameterString release];
-	[signatureParameter release];
-	[aRequest release];
 	
 	return aRequest;
 }

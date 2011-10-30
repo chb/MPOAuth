@@ -21,23 +21,19 @@ extern NSString * const MPOAuthNotificationRequestTokenRejected;
 @protocol MPOAuthAuthenticationMethodOAuthDelegate;
 
 @interface MPOAuthAuthenticationMethodOAuth : MPOAuthAuthenticationMethod <MPOAuthAPIInternalClient> {
-	NSURL									*oauthRequestTokenURL_;
-	NSURL									*oauthAuthorizeTokenURL_;
-	BOOL									oauth10aModeActive_;
 	BOOL									restartOnFail_;
 	BOOL									didRestartOnFail_;
-	
-	id <MPOAuthAuthenticationMethodOAuthDelegate> delegate_;
 }
 
-@property (nonatomic, readwrite, assign) id <MPOAuthAuthenticationMethodOAuthDelegate> delegate;
+@property (nonatomic, readwrite, unsafe_unretained) id <MPOAuthAuthenticationMethodOAuthDelegate> delegate;
 
-@property (nonatomic, readwrite, retain) NSURL *oauthRequestTokenURL;
-@property (nonatomic, readwrite, retain) NSURL *oauthAuthorizeTokenURL;
+@property (nonatomic, readwrite, strong) NSURL *oauthRequestTokenURL;
+@property (nonatomic, readwrite, strong) NSURL *oauthAuthorizeTokenURL;
 
 - (void)authenticate;
 
 @end
+
 
 @protocol MPOAuthAuthenticationMethodOAuthDelegate <NSObject>
 

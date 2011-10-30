@@ -16,14 +16,18 @@
 NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 
 @interface MPOAuthAuthenticationMethod ()
-@property (nonatomic, readwrite, retain) NSTimer *refreshTimer;
+
+@property (nonatomic, readwrite, strong) NSTimer *refreshTimer;
 
 + (Class)_authorizationMethodClassForURL:(NSURL *)inBaseURL withConfiguration:(NSDictionary **)outConfig;
 - (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL withConfiguration:(NSDictionary *)inConfig;
 - (void)_automaticallyRefreshAccessToken:(NSTimer *)inTimer;
+
 @end
 
+
 @implementation MPOAuthAuthenticationMethod
+
 - (id)initWithAPI:(MPOAuthAPI *)inAPI forURL:(NSURL *)inURL {
 	return [self initWithAPI:inAPI forURL:inURL withConfiguration:nil];
 }
@@ -42,7 +46,6 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 		if (!methodClass) {
 			methodClass = [[self class] _authorizationMethodClassForURL:inURL withConfiguration:&configuration];
 		}
-		[self release];
 		
 		self = [[methodClass alloc] initWithAPI:inAPI forURL:inURL withConfiguration:configuration];
 	} else if ((self = [super init])) {
@@ -54,12 +57,9 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 
 - (oneway void)dealloc {
 	self.oauthAPI = nil;
-	self.oauthGetAccessTokenURL = nil;
 
 	[self.refreshTimer invalidate];
-	self.refreshTimer = nil;
 
-	[super dealloc];
 }
 
 @synthesize oauthAPI = oauthAPI_;
@@ -129,7 +129,6 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 					  withTarget:nil
 					   andAction:nil];
 	
-	[sessionHandleParameter release];	
 }
 
 #pragma mark -

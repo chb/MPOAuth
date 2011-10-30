@@ -14,6 +14,6 @@
 	NSURL *_userAuthURL;
 }
 
-@property (nonatomic, readwrite, retain) NSURL *userAuthURL;
+@property (nonatomic, readwrite, strong) NSURL *userAuthURL;
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "MPURLRequestParameter.h"
+#import "MPOAuthAPI.h"
 #import "NSString+URLEscapingAdditions.h"
 
 @implementation MPURLRequestParameter
@@ -33,10 +34,8 @@
 		
 		[foundParameters addObject:currentParameter];
 		
-		[currentParameter release];
 	}
 	
-	[parameterScanner release];
 	
 	return foundParameters;
 }
@@ -53,14 +52,13 @@
 			aURLParameter.value = [parts objectAtIndex:1];
 			
 			[parameterArray addObject:aURLParameter];
-			[aURLParameter release];
 		}
 		else {
 			MPLog(@"Invalid parameter: %@", aString);
 		}
 	}
 	
-	return [parameterArray autorelease];
+	return parameterArray;
 }
 
 + (NSArray *)parametersFromDictionary:(NSDictionary *)inDictionary {
@@ -73,10 +71,9 @@
 		aURLParameter.value = [inDictionary objectForKey:aKey];
 		
 		[parameterArray addObject:aURLParameter];
-		[aURLParameter release];
 	}
 	
-	return [parameterArray autorelease];
+	return parameterArray;
 }
 
 + (NSDictionary *)parameterDictionaryFromString:(NSString *)inString {
@@ -101,7 +98,6 @@
 			}
 		}
 		
-		[parameterScanner release];
 	}
 	return foundParameters;
 }
@@ -121,7 +117,7 @@
 		}
 	}
 	
-	return [queryString autorelease];
+	return queryString;
 }
 
 + (NSString *)parameterStringForDictionary:(NSDictionary *)inParameterDictionary {
@@ -133,13 +129,6 @@
 
 #pragma mark -
 
-- (id)init {
-	if ((self = [super init])) {
-		
-	}
-	return self;
-}
-
 - (id)initWithName:(NSString *)inName andValue:(NSString *)inValue {
 	if ((self = [super init])) {
 		self.name = inName;
@@ -148,12 +137,6 @@
 	return self;
 }
 
-- (oneway void)dealloc {
-	self.name = nil;
-	self.value = nil;
-	
-	[super dealloc];
-}
 
 @synthesize name = _name;
 @synthesize value = _value;
@@ -161,7 +144,9 @@
 #pragma mark -
 
 - (NSString *)URLEncodedParameterString {
-	return [NSString stringWithFormat:@"%@=%@", [self.name stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding], self.value ? [self.value stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding] : @""];
+	NSString *key = [self.name stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *val = self.value ? [self.value stringByAddingURIPercentEscapesUsingEncoding:NSUTF8StringEncoding] : @"";
+	return [NSString stringWithFormat:@"%@=%@", key, val];
 }
 
 #pragma mark -

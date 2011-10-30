@@ -10,24 +10,20 @@
 #import "MPOAuthCredentialStore.h"
 #import "MPOAuthParameterFactory.h"
 
-@interface MPOAuthCredentialConcreteStore : NSObject <MPOAuthCredentialStore, MPOAuthParameterFactory> {
-	NSMutableDictionary *store_;
-	NSURL				*baseURL_;
-	NSURL				*authenticationURL_;
-}
+@interface MPOAuthCredentialConcreteStore : NSObject <MPOAuthCredentialStore, MPOAuthParameterFactory> 
 
-@property (nonatomic, readonly, retain) NSURL *baseURL;
-@property (nonatomic, readonly, retain) NSURL *authenticationURL;
+@property (nonatomic, readonly, strong) NSURL *baseURL;
+@property (nonatomic, readonly, strong) NSURL *authenticationURL;
 
-@property (nonatomic, readonly) NSString *tokenSecret;
-@property (nonatomic, readonly) NSString *signingKey;
+@property (weak, nonatomic, readonly) NSString *tokenSecret;
+@property (weak, nonatomic, readonly) NSString *signingKey;
 
-@property (nonatomic, readwrite, retain) NSString *requestToken;
-@property (nonatomic, readwrite, retain) NSString *requestTokenSecret;
-@property (nonatomic, readwrite, retain) NSString *accessToken;
-@property (nonatomic, readwrite, retain) NSString *accessTokenSecret;
+@property (nonatomic, readwrite, strong) NSString *requestToken;
+@property (nonatomic, readwrite, strong) NSString *requestTokenSecret;
+@property (nonatomic, readwrite, strong) NSString *accessToken;
+@property (nonatomic, readwrite, strong) NSString *accessTokenSecret;
 
-@property (nonatomic, readwrite, retain) NSString *sessionHandle;
+@property (nonatomic, readwrite, strong) NSString *sessionHandle;
 
 - (id)initWithCredentials:(NSDictionary *)inCredentials forBaseURL:(NSURL *)inBaseURL;
 - (id)initWithCredentials:(NSDictionary *)inCredentials forBaseURL:(NSURL *)inBaseURL withAuthenticationURL:(NSURL *)inAuthenticationURL;

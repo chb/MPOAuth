@@ -9,10 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MPURLRequestParameter : NSObject {
-	NSString *_name;
-	NSString *_value;
-}
+@interface MPURLRequestParameter : NSObject
 
 @property (nonatomic, readwrite, copy) NSString *name;
 @property (nonatomic, readwrite, copy) NSString *value;
@@ -27,5 +24,6 @@
 - (id)initWithName:(NSString *)inName andValue:(NSString *)inValue;
 
 - (NSString *)URLEncodedParameterString;
+
 
 @end

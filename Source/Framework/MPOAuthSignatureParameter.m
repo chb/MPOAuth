@@ -15,8 +15,11 @@
 #include "Base64Transcoder.h"
 
 @interface MPOAuthSignatureParameter ()
+
 - (id)initUsingHMAC_SHA1WithText:(NSString *)inText andSecret:(NSString *)inSecret forRequest:(MPOAuthURLRequest *)inRequest;
+
 @end
+
 
 @implementation MPOAuthSignatureParameter
 
@@ -42,7 +45,7 @@
 	size_t theResultLength = 32;
 	Base64EncodeData(result, 20, base64Result, &theResultLength);
 	NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-	NSString *base64EncodedResult = [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+	NSString *base64EncodedResult = [[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding];
 	
 	return base64EncodedResult;
 }
@@ -62,7 +65,7 @@
 	Base64EncodeData(digest, 20, base64Digest, &digestLength);
 	NSData *theData = [NSData dataWithBytes:base64Digest length:digestLength];
 	
-	return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+	return [[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding];
 }
 
 - (id)initWithText:(NSString *)inText andSecret:(NSString *)inSecret forRequest:(MPOAuthURLRequest *)inRequest usingMethod:(NSString *)inMethod {
@@ -74,7 +77,6 @@
 			self.value = inSecret;
 		}
 	} else {
-		[self release];
 		self = nil;
 		[NSException raise:@"Unsupported Signature Method" format:@"The signature method \"%@\" is not currently support by MPOAuthConnection", inMethod];
 	}
@@ -92,8 +94,5 @@
 	return self;	
 }
 
-- (oneway void)dealloc {
-	[super dealloc];
-}
 
 @end

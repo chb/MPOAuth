@@ -17,12 +17,9 @@
 
 @implementation RootViewController
 
-- (void)dealloc {
-    [super dealloc];
-}
 
-@synthesize methodInput;
-@synthesize parametersInput;
+@synthesize oauthAPI = _oauthAPI;
+@synthesize methodInput, parametersInput, textOutput;
 
 #pragma mark -
 
@@ -42,9 +39,9 @@
 		NSDictionary *credentials = [NSDictionary dictionaryWithObjectsAndKeys:	kConsumerKey, kMPOAuthCredentialConsumerKey,
 									 kConsumerSecret, kMPOAuthCredentialConsumerSecret,
 									 nil];
-		_oauthAPI = [[MPOAuthAPI alloc] initWithCredentials:credentials
-										  authenticationURL:[NSURL URLWithString:@"https://twitter.com/oauth/"]
-												 andBaseURL:[NSURL URLWithString:@"https://twitter.com/"]];
+		self.oauthAPI = [[MPOAuthAPI alloc] initWithCredentials:credentials
+											  authenticationURL:[NSURL URLWithString:@"https://twitter.com/oauth/"]
+													 andBaseURL:[NSURL URLWithString:@"https://twitter.com/"]];
 		
 		if ([[_oauthAPI authenticationMethod] respondsToSelector:@selector(setDelegate:)]) {
 			[(MPOAuthAuthenticationMethodOAuth *)[_oauthAPI authenticationMethod] setDelegate:(id <MPOAuthAuthenticationMethodOAuthDelegate>)[UIApplication sharedApplication].delegate];

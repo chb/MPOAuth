@@ -24,24 +24,19 @@ extern NSString * const MPOAuthNotificationErrorHasOccurred;
 @class MPOAuthCredentialConcreteStore;
 
 @interface MPOAuthAPIRequestLoader : NSObject {
-	MPOAuthAPI						*_api;
 	MPOAuthCredentialConcreteStore	*_credentials;
-	MPOAuthURLRequest				*_oauthRequest;
-	MPOAuthURLResponse				*_oauthResponse;
 	NSMutableData					*_dataBuffer;
 	NSString						*_dataAsString;
 	NSError							*_error;
-	id								_target;
-	SEL								_action;
 }
 
-@property (nonatomic, readwrite, assign) MPOAuthAPI *api;
-@property (nonatomic, readwrite, retain) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
-@property (nonatomic, readwrite, retain) MPOAuthURLRequest *oauthRequest;
-@property (nonatomic, readwrite, retain) MPOAuthURLResponse *oauthResponse;
-@property (nonatomic, readonly, retain) NSData *data;
-@property (nonatomic, readonly, retain) NSString *responseString;
-@property (nonatomic, readwrite, assign) id target;
+@property (nonatomic, readwrite, unsafe_unretained) MPOAuthAPI *api;
+@property (nonatomic, readwrite, strong) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
+@property (nonatomic, readwrite, strong) MPOAuthURLRequest *oauthRequest;
+@property (nonatomic, readwrite, strong) MPOAuthURLResponse *oauthResponse;
+@property (nonatomic, readonly, strong) NSData *data;
+@property (nonatomic, readonly, strong) NSString *responseString;
+@property (nonatomic, readwrite, unsafe_unretained) id target;
 @property (nonatomic, readwrite, assign) SEL action;
 
 - (id)initWithURL:(NSURL *)inURL;

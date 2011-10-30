@@ -9,18 +9,12 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MPOAuthURLRequest : NSObject {
-@private
-	NSURL			*_url;
-	NSString		*_httpMethod;
-	NSURLRequest	*_urlRequest;
-	NSMutableArray	*_parameters;
-}
+@interface MPOAuthURLRequest : NSObject
 
-@property (nonatomic, readwrite, retain) NSURL *url;
-@property (nonatomic, readwrite, retain) NSString *HTTPMethod;
-@property (nonatomic, readonly, retain) NSURLRequest *urlRequest;
-@property (nonatomic, readwrite, retain) NSMutableArray *parameters;
+@property (nonatomic, readwrite, strong) NSURL *url;
+@property (nonatomic, readwrite, strong) NSString *HTTPMethod;
+@property (nonatomic, readonly, strong) NSURLRequest *urlRequest;
+@property (nonatomic, readwrite, strong) NSMutableArray *parameters;
 
 - (id)initWithURL:(NSURL *)inURL andParameters:(NSArray *)parameters;
 - (id)initWithURLRequest:(NSURLRequest *)inRequest;
@@ -28,5 +22,6 @@
 - (void)addParameters:(NSArray *)inParameters;
 
 - (NSURLRequest  *)urlRequestSignedWithSecret:(NSString *)inSecret usingMethod:(NSString *)inScheme;
+
 
 @end

@@ -15,9 +15,7 @@
 
 @class MPOAuthURLRequest;
 
-@interface MPOAuthSignatureParameter : MPURLRequestParameter {
-
-}
+@interface MPOAuthSignatureParameter : MPURLRequestParameter
 
 + (NSString *)signatureBaseStringUsingParameterString:(NSString *)inParameterString forRequest:(MPOAuthURLRequest *)inRequest;
 + (NSString *)HMAC_SHA1SignatureForText:(NSString *)inText usingSecret:(NSString *)inSecret;

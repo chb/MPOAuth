@@ -12,11 +12,9 @@
 
 @protocol MPOAuthAuthenticationMethodTwoLeggedDelegate;
 
-@interface MPOAuthAuthenticationMethodTwoLegged : MPOAuthAuthenticationMethod <MPOAuthAPIInternalClient> {
-	id <MPOAuthAuthenticationMethodTwoLeggedDelegate> delegate_;
-}
+@interface MPOAuthAuthenticationMethodTwoLegged : MPOAuthAuthenticationMethod <MPOAuthAPIInternalClient>
 
-@property (nonatomic, readwrite, assign) id <MPOAuthAuthenticationMethodTwoLeggedDelegate> delegate;
+@property (nonatomic, readwrite, unsafe_unretained) id <MPOAuthAuthenticationMethodTwoLeggedDelegate> delegate;
 
 
 @end

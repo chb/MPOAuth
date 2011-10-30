@@ -12,8 +12,11 @@
 #if TARGET_OS_IPHONE && (!TARGET_IPHONE_SIMULATOR || __IPHONE_3_0)
 
 @interface MPOAuthCredentialConcreteStore (TokenAdditionsiPhone)
-- (NSString *)findValueFromKeychainUsingName:(NSString *)inName returningItem:(NSDictionary **)outKeychainItemRef;
+
+- (NSString *)findValueFromKeychainUsingName:(NSString *)inName returningItem:(__autoreleasing NSDictionary **)outKeychainItemRef;
+
 @end
+
 
 @implementation MPOAuthCredentialConcreteStore (KeychainAdditions)
 
@@ -21,7 +24,7 @@
 	NSString *serverName = [self.baseURL host];
 	NSString *securityDomain = [self.authenticationURL host];
 //	NSString *itemID = [NSString stringWithFormat:@"%@.oauth.%@", [[NSBundle mainBundle] bundleIdentifier], inName];
-	NSDictionary *keychainItemAttributeDictionary = [NSDictionary dictionaryWithObjectsAndKeys:	(id)kSecClassInternetPassword, kSecClass,
+	NSDictionary *keychainItemAttributeDictionary = [NSDictionary dictionaryWithObjectsAndKeys:	(__bridge id)kSecClassInternetPassword, kSecClass,
 																								securityDomain, kSecAttrSecurityDomain,
 																								serverName, kSecAttrServer,
 																								inName, kSecAttrAccount,
@@ -32,15 +35,14 @@
 	
 	
 	// just try to add the item, checking for an existing item does not reliably work
-	OSStatus success = SecItemAdd( (CFDictionaryRef)keychainItemAttributeDictionary, NULL);
+	OSStatus success = SecItemAdd((__bridge CFDictionaryRef)keychainItemAttributeDictionary, NULL);
 	
 	// the item already exists, let's update
 	if (success == errSecDuplicateItem) {
 		NSMutableDictionary *updateDictionary = [keychainItemAttributeDictionary mutableCopy];
-		[updateDictionary removeObjectForKey:(id)kSecClass];
+		[updateDictionary removeObjectForKey:(__bridge id)kSecClass];
 		
-		SecItemUpdate((CFDictionaryRef)keychainItemAttributeDictionary, (CFDictionaryRef)updateDictionary);
-		[updateDictionary release];
+		SecItemUpdate((__bridge CFDictionaryRef)keychainItemAttributeDictionary, (__bridge CFDictionaryRef)updateDictionary);
 	}
 	else if (success == errSecNotAvailable) {
 		[NSException raise:@"Keychain Not Available" format:@"Keychain Access Not Currently Available"];
@@ -51,7 +53,7 @@
 	return [self findValueFromKeychainUsingName:inName returningItem:NULL];
 }
 
-- (NSString *)findValueFromKeychainUsingName:(NSString *)inName returningItem:(NSDictionary **)outKeychainItemRef {
+- (NSString *)findValueFromKeychainUsingName:(NSString *)inName returningItem:(__autoreleasing NSDictionary **)outKeychainItemRef {
 	NSString *foundPassword = nil;
 	NSString *serverName = [self.baseURL host];
 	NSString *securityDomain = [self.authenticationURL host];
@@ -60,43 +62,50 @@
 	OSStatus status = noErr;
 //	NSString *itemID = [NSString stringWithFormat:@"%@.oauth.%@", [[NSBundle mainBundle] bundleIdentifier], inName];
 	
-	NSMutableDictionary *searchDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassInternetPassword, (id)kSecClass,
-																							  securityDomain, (id)kSecAttrSecurityDomain,
-																							  serverName, (id)kSecAttrServer,
-																							  inName, (id)kSecAttrAccount,
-																							  (id)kSecMatchLimitOne, (id)kSecMatchLimit,
-																							  (id)kCFBooleanTrue, (id)kSecReturnData,
-																							  (id)kCFBooleanTrue, (id)kSecReturnAttributes,
-																							  (id)kCFBooleanTrue, (id)kSecReturnPersistentRef,
+	NSMutableDictionary *searchDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+											 (__bridge id)kSecClassInternetPassword, (__bridge id)kSecClass,
+											 (__bridge id)kSecMatchLimitOne, (__bridge id)kSecMatchLimit,
+											 (id)kCFBooleanTrue, (__bridge id)kSecReturnData,
+											 (id)kCFBooleanTrue, (__bridge id)kSecReturnAttributes,
+											 (id)kCFBooleanTrue, (__bridge id)kSecReturnPersistentRef,
+											 inName, (__bridge id)kSecAttrAccount,
+											 securityDomain, (__bridge id)kSecAttrSecurityDomain,
+											 serverName, (__bridge id)kSecAttrServer,
 											 nil];
-
-	status = SecItemCopyMatching((CFDictionaryRef)searchDictionary, (CFTypeRef *)&attributesDictionary);		
-	foundValue = [attributesDictionary objectForKey:(id)kSecValueData];
-	if (outKeychainItemRef) {
-		*outKeychainItemRef = attributesDictionary;
-	}
+	
+	CFTypeRef foundDict;
+	status = SecItemCopyMatching((__bridge CFDictionaryRef)searchDictionary, &foundDict);
 	
 	if (status == noErr) {
-		[attributesDictionary autorelease];
+		attributesDictionary = (__bridge_transfer NSDictionary *)foundDict;
+		foundValue = [attributesDictionary objectForKey:(__bridge id)kSecValueData];
 		if (foundValue) {
 			foundPassword = [[NSString alloc] initWithData:foundValue encoding:NSUTF8StringEncoding];
 		}
 	}
+	else {
+		MPLog(@"Error finding value from keychain: %ld", status);
+	}
 	
-	return [foundPassword autorelease];
+	if (outKeychainItemRef) {
+		*outKeychainItemRef = attributesDictionary;
+	}
+	
+	return foundPassword;
 }
 
 - (void)removeValueFromKeychainUsingName:(NSString *)inName {
 	NSString *serverName = [self.baseURL host];
 	NSString *securityDomain = [self.authenticationURL host];
 	
-	NSMutableDictionary *searchDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:	(id)kSecClassInternetPassword, (id)kSecClass,
-																								 securityDomain, (id)kSecAttrSecurityDomain,
-																								 serverName, (id)kSecAttrServer,
-																								 inName, (id)kSecAttrAccount,
-																								 nil];
+	NSMutableDictionary *searchDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+											 (__bridge id)kSecClassInternetPassword, (__bridge id)kSecClass,
+											 securityDomain, (__bridge id)kSecAttrSecurityDomain,
+											 serverName, (__bridge id)kSecAttrServer,
+											 inName, (__bridge id)kSecAttrAccount,
+											 nil];
 	
-	OSStatus success = SecItemDelete((CFDictionaryRef)searchDictionary);
+	OSStatus success = SecItemDelete((__bridge CFDictionaryRef)searchDictionary);
 
 	if (success == errSecNotAvailable) {
 		[NSException raise:@"Keychain Not Available" format:@"Keychain Access Not Currently Available"];

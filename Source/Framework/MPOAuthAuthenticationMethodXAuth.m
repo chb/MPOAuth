@@ -30,23 +30,23 @@
 		MPLog(@"--> Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
 		NSString *username = [[self.oauthAPI credentials] username];
 		NSString *password = [[self.oauthAPI credentials] password];
-		NSAssert(username, @"XAuth requires a Username credential");
-		NSAssert(password, @"XAuth requires a Password credential");
 		
-		MPURLRequestParameter *usernameParameter = [[MPURLRequestParameter alloc] initWithName:@"x_auth_username" andValue:username];
-		MPURLRequestParameter *passwordParameter = [[MPURLRequestParameter alloc] initWithName:@"x_auth_password" andValue:password];
-		MPURLRequestParameter *clientModeParameter = [[MPURLRequestParameter alloc] initWithName:@"x_auth_mode" andValue:@"client_auth"];
-		
-		[self.oauthAPI performPOSTMethod:nil
-								   atURL:self.oauthGetAccessTokenURL
-						  withParameters:[NSArray arrayWithObjects:usernameParameter, passwordParameter, clientModeParameter, nil]
-							  withTarget:self
-							   andAction:nil];
-		
-		[usernameParameter release];
-		[passwordParameter release];
-		[clientModeParameter release];
-	} else if (credentials.accessToken && credentials.accessTokenSecret) {
+		if ([username length] > 0 && [password length] > 0) {
+			MPURLRequestParameter *usernameParameter = [[MPURLRequestParameter alloc] initWithName:@"x_auth_username" andValue:username];
+			MPURLRequestParameter *passwordParameter = [[MPURLRequestParameter alloc] initWithName:@"x_auth_password" andValue:password];
+			MPURLRequestParameter *clientModeParameter = [[MPURLRequestParameter alloc] initWithName:@"x_auth_mode" andValue:@"client_auth"];
+			
+			[self.oauthAPI performPOSTMethod:nil
+									   atURL:self.oauthGetAccessTokenURL
+							  withParameters:[NSArray arrayWithObjects:usernameParameter, passwordParameter, clientModeParameter, nil]
+								  withTarget:self
+								   andAction:nil];
+		}
+		else {
+			MPLog(@"No username and/or no password (%@:%@)", username, password);
+		}
+	}
+	else if (credentials.accessToken && credentials.accessTokenSecret) {
 		NSTimeInterval expiryDateInterval = [[NSUserDefaults standardUserDefaults] doubleForKey:MPOAuthTokenRefreshDateDefaultsKey];
 		NSDate *tokenExpiryDate = [NSDate dateWithTimeIntervalSinceReferenceDate:expiryDateInterval];
 		

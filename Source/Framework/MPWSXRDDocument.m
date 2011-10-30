@@ -12,12 +12,15 @@
 #import <libxml/xpathInternals.h>
 #import <libxml/xpath.h>
 
+
 @interface MPWSXRDDocument ()
-@property (nonatomic, readwrite, retain) NSString *subject;
-@property (nonatomic, readwrite, retain) NSDate *expirationDate;
-@property (nonatomic, readwrite, retain) NSDictionary *urlRelationships;
+
+@property (nonatomic, readwrite, strong) NSString *subject;
+@property (nonatomic, readwrite, strong) NSDate *expirationDate;
+@property (nonatomic, readwrite, strong) NSDictionary *urlRelationships;
 
 - (BOOL)_parseStringForContent:(NSString *)inString;
+
 @end
 
 @implementation MPWSXRDDocument
@@ -28,20 +31,13 @@
 	return self;
 }
 
-- (id)iniWithString:(NSString *)inString {
+- (id)initWithString:(NSString *)inString {
 	if ((self = [super init])) {
 		[self _parseStringForContent:inString];
 	}
 	return self;
 }
 
-- (oneway void)dealloc {
-	self.subject = nil;
-	self.expirationDate = nil;
-	self.urlRelationships = nil;
-	
-	[super dealloc];
-}
 
 @synthesize subject = _subject;
 @synthesize expirationDate = _expirationDate;

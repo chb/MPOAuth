@@ -50,8 +50,8 @@
 	NSURL *nakedURL = [NSURL URLWithString:@"http://apple.com"];
 	NSURL *parameterizedURL = [NSURL URLWithString:@"http://example.com/index.php?a=b&c=d"];
 	
-	MPURLRequestParameter *aParameter = [[[MPURLRequestParameter alloc] initWithName:@"x" andValue:@"y"] autorelease];
-	MPURLRequestParameter *anotherParameter = [[[MPURLRequestParameter alloc] initWithName:@"zeta" andValue:@"beta"] autorelease];
+	MPURLRequestParameter *aParameter = [[MPURLRequestParameter alloc] initWithName:@"x" andValue:@"y"];
+	MPURLRequestParameter *anotherParameter = [[MPURLRequestParameter alloc] initWithName:@"zeta" andValue:@"beta"];
 	NSArray *testParameters = [NSArray arrayWithObjects:aParameter, anotherParameter, nil];
 	
 	STAssertEqualObjects(	[nakedURL urlByAddingParameters:testParameters],

@@ -22,11 +22,6 @@
 	return self;
 }
 
-- (void)dealloc {
-	self.userAuthURL = nil;
-	
-    [super dealloc];
-}
 
 @synthesize userAuthURL = _userAuthURL;
 

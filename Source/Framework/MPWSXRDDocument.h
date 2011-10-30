@@ -9,18 +9,15 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MPWSXRDDocument : NSObject {
-	NSString		*_subject;
-	NSDate			*_expirationDate;
-	NSDictionary	*_urlRelationships;
-}
+@interface MPWSXRDDocument : NSObject
 
-@property (nonatomic, readonly, retain) NSString *subject;
-@property (nonatomic, readonly, retain) NSDate *expirationDate;
-@property (nonatomic, readonly, retain) NSDictionary *urlRelationships;
+@property (nonatomic, readonly, strong) NSString *subject;
+@property (nonatomic, readonly, strong) NSDate *expirationDate;
+@property (nonatomic, readonly, strong) NSDictionary *urlRelationships;
 
 - (id)initFromURL:(NSURL *)inURL;
-- (id)iniWithString:(NSString *)inString;
+- (id)initWithString:(NSString *)inString;
 - (NSURL *)urlForRelationship:(NSString *)inRelationshipType;
+
 
 @end

@@ -50,8 +50,6 @@
 							  withTarget:self
 							   andAction:nil];
 		
-		[usernameParameter release];
-		[passwordParameter release];
 		return;
 	}
 	

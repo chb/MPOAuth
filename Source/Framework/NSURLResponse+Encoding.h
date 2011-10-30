@@ -10,5 +10,7 @@
 
 
 @interface NSURLResponse (EncodingAdditions)
+
 - (NSStringEncoding)encoding;
+
 @end

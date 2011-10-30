@@ -48,8 +48,6 @@
 							  withTarget:self
 							   andAction:nil];
 		
-		[usernameParameter release];
-		[passwordParameter release];
 	} else if (credentials.accessToken && credentials.accessTokenSecret) {
 		NSTimeInterval expiryDateInterval = [[NSUserDefaults standardUserDefaults] doubleForKey:MPOAuthTokenRefreshDateDefaultsKey];
 		NSDate *tokenExpiryDate = [NSDate dateWithTimeIntervalSinceReferenceDate:expiryDateInterval];

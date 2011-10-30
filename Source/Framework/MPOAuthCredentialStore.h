@@ -17,6 +17,7 @@ extern NSString *kMPOAuthCredentialAccessTokenSecret;
 extern NSString *kMPOAuthCredentialSessionHandle;
 extern NSString *kMPOAuthCredentialRealm;
 
+
 @protocol MPOAuthCredentialStore <NSObject>
 
 @property (nonatomic, readonly) NSString *consumerKey;
@@ -30,4 +31,6 @@ extern NSString *kMPOAuthCredentialRealm;
 
 - (NSString *)credentialNamed:(NSString *)inCredentialName;
 - (void)discardOAuthCredentials;
+
+
 @end

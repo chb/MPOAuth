@@ -62,13 +62,13 @@
 - (void)testNormalizeRequestParameters_Core911 {
 	NSMutableArray *parameterArray = [NSMutableArray arrayWithCapacity:10];
 	
-	MPURLRequestParameter *nameParameter = [[[MPURLRequestParameter alloc] initWithName:@"name" andValue:nil] autorelease];
+	MPURLRequestParameter *nameParameter = [[MPURLRequestParameter alloc] initWithName:@"name" andValue:nil];
 	STAssertEqualObjects([nameParameter URLEncodedParameterString], @"name=", @"Incorrectly Normalized Request Parameters, Core 9.1.1");
 	
-	MPURLRequestParameter *aParameter = [[[MPURLRequestParameter alloc] initWithName:@"a" andValue:@"b"] autorelease];
+	MPURLRequestParameter *aParameter = [[MPURLRequestParameter alloc] initWithName:@"a" andValue:@"b"];
 	STAssertEqualObjects([aParameter URLEncodedParameterString], @"a=b", @"Incorrectly Normalized Request Parameters, Core 9.1.1");
 
-	MPURLRequestParameter *anotherParameter = [[[MPURLRequestParameter alloc] initWithName:@"c" andValue:@"d"] autorelease];
+	MPURLRequestParameter *anotherParameter = [[MPURLRequestParameter alloc] initWithName:@"c" andValue:@"d"];
 	[parameterArray addObject:aParameter];
 	[parameterArray addObject:anotherParameter];
 	STAssertEqualObjects([MPURLRequestParameter parameterStringForParameters:parameterArray], @"a=b&c=d", @"Incorrectly Normalized Request Parameters, Core 9.1.1");

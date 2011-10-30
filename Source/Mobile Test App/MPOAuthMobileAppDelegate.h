@@ -15,8 +15,8 @@
 	NSString				*oauthVerifier_;
 }
 
-@property (nonatomic, readwrite, retain) IBOutlet UIWindow *window;
-@property (nonatomic, readwrite, retain) IBOutlet UINavigationController *navigationController;
+@property (nonatomic, readwrite, strong) IBOutlet UIWindow *window;
+@property (nonatomic, readwrite, strong) IBOutlet UINavigationController *navigationController;
 @property (nonatomic, readwrite, copy) NSString *oauthVerifier;
 @end
 

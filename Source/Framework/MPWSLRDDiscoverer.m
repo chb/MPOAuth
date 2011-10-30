@@ -12,11 +12,12 @@
 #define kMPWSLRDDiscovererExpectedRelType	@"describedby"
 
 @interface MPWSLRDDiscoverer ()
-@property (nonatomic, readwrite, retain) NSURL *endpointURL;
-@property (nonatomic, readwrite, retain) NSString *soughtType;
-@property (nonatomic, readwrite, retain) NSURLConnection *connection;
-@property (nonatomic, readwrite, retain) NSURLResponse *response;
-@property (nonatomic, readwrite, retain) NSMutableData *responseData;
+
+@property (nonatomic, readwrite, strong) NSURL *endpointURL;
+@property (nonatomic, readwrite, strong) NSString *soughtType;
+@property (nonatomic, readwrite, strong) NSURLConnection *connection;
+@property (nonatomic, readwrite, strong) NSURLResponse *response;
+@property (nonatomic, readwrite, strong) NSMutableData *responseData;
 
 - (BOOL)_processResponseSearchingForLinkMarkup;
 - (BOOL)_processResponseSearchingForLinkHeaders;
@@ -25,24 +26,8 @@
 
 @end
 
+
 @implementation MPWSLRDDiscoverer
-
-- (id)init {
-	if ((self = [super init])) {
-		
-	}
-	return self;
-}
-
-- (oneway void)dealloc {
-	self.endpointURL = nil;
-	self.soughtType = nil;
-	self.connection = nil;
-	self.response = nil;
-	self.responseData = nil;
-	
-	[super dealloc];
-}
 
 @synthesize delegate = _delegate;
 @synthesize endpointURL = _endpointURL;

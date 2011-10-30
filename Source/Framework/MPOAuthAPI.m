@@ -34,13 +34,15 @@ NSString * const MPOAuthAuthenticationURLKey		= @"MPOAuthAuthenticationURL";
 NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod";
 
 @interface MPOAuthAPI ()
-@property (nonatomic, readwrite, retain) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
-@property (nonatomic, readwrite, retain) NSURL *authenticationURL;
-@property (nonatomic, readwrite, retain) NSURL *baseURL;
-@property (nonatomic, readwrite, retain) NSMutableArray *activeLoaders;
+
+@property (nonatomic, readwrite, strong) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
+@property (nonatomic, readwrite, strong) NSURL *authenticationURL;
+@property (nonatomic, readwrite, strong) NSURL *baseURL;
+@property (nonatomic, readwrite, strong) NSMutableArray *activeLoaders;
 @property (nonatomic, readwrite, assign) MPOAuthAuthenticationState authenticationState;
 
 - (void)performMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction usingHTTPMethod:(NSString *)inHTTPMethod;
+
 @end
 
 @implementation MPOAuthAPI
@@ -59,11 +61,11 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 		self.authenticationURL = inAuthURL;
 		self.baseURL = inBaseURL;
 		self.authenticationState = MPOAuthAuthenticationStateUnauthenticated;
-		credentials_ = [[MPOAuthCredentialConcreteStore alloc] initWithCredentials:inCredentials forBaseURL:inBaseURL withAuthenticationURL:inAuthURL];
-		self.authenticationMethod = [[[MPOAuthAuthenticationMethod alloc] initWithAPI:self forURL:inAuthURL] autorelease];
+		self.credentials = [[MPOAuthCredentialConcreteStore alloc] initWithCredentials:inCredentials forBaseURL:inBaseURL withAuthenticationURL:inAuthURL];
+		self.authenticationMethod = [[MPOAuthAuthenticationMethod alloc] initWithAPI:self forURL:inAuthURL];
 		self.signatureScheme = MPOAuthSignatureSchemeHMACSHA1;
 
-		activeLoaders_ = [[NSMutableArray alloc] initWithCapacity:10];
+		self.activeLoaders = [[NSMutableArray alloc] initWithCapacity:10];
 		
 		if (aFlag) {
 			[self authenticate];
@@ -78,12 +80,12 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 		self.authenticationURL = [inConfiguration valueForKey:MPOAuthAuthenticationURLKey];
 		self.baseURL = [inConfiguration valueForKey:MPOAuthBaseURLKey];
 		self.authenticationState = MPOAuthAuthenticationStateUnauthenticated;
-		credentials_ = [[MPOAuthCredentialConcreteStore alloc] initWithCredentials:inCredentials forBaseURL:self.baseURL withAuthenticationURL:self.authenticationURL];
+		self.credentials = [[MPOAuthCredentialConcreteStore alloc] initWithCredentials:inCredentials forBaseURL:self.baseURL withAuthenticationURL:self.authenticationURL];
 		NSString *authMethod = [inConfiguration objectForKey:MPOAuthAuthenticationMethodKey];
-		self.authenticationMethod = [[[MPOAuthAuthenticationMethod alloc] initWithAPI:self forURL:self.authenticationURL withConfiguration:inConfiguration preferredMethod:authMethod] autorelease];
+		self.authenticationMethod = [[MPOAuthAuthenticationMethod alloc] initWithAPI:self forURL:self.authenticationURL withConfiguration:inConfiguration preferredMethod:authMethod];
 		self.signatureScheme = MPOAuthSignatureSchemeHMACSHA1;
 		
-		activeLoaders_ = [[NSMutableArray alloc] initWithCapacity:10];
+		self.activeLoaders = [[NSMutableArray alloc] initWithCapacity:10];
 		
 		if (aFlag) {
 			[self authenticate];
@@ -93,14 +95,8 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 }
 
 - (oneway void)dealloc {
-	self.credentials = nil;
-	self.defaultHTTPMethod = nil;
-	self.baseURL = nil;
-	self.authenticationURL = nil;
 	self.authenticationMethod = nil;
-	self.activeLoaders = nil;
 	
-	[super dealloc];
 }
 
 @synthesize authDelegate = _authDelegate;
@@ -142,8 +138,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 		//	[authenticationMethod_ performSelector:@selector(setDelegate:) withObject:nil];
 		//}
 		
-		[authenticationMethod_ release];
-		authenticationMethod_ = [newMethod retain];
+		authenticationMethod_ = newMethod;
 		
 		if ([authenticationMethod_ respondsToSelector:@selector(setDelegate:)]) {
 			[authenticationMethod_ performSelector:@selector(setDelegate:) withObject:self];
@@ -228,8 +223,6 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[loader loadSynchronously:NO];
 	//	[self.activeLoaders addObject:loader];
 	
-	[loader release];
-	[aRequest release];
 }
 
 - (void)performURLRequest:(NSURLRequest *)inRequest withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate {
@@ -253,8 +246,6 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	[loader loadSynchronously:NO];
 	//	[self.activeLoaders addObject:loader];
 	
-	[loader release];
-	[aRequest release];	
 }
 
 #pragma mark - Synchronous Loading
@@ -276,8 +267,6 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 	loader.credentials = self.credentials;
 	[loader loadSynchronously:YES];
 	
-	[loader autorelease];
-	[aRequest release];
 	
 	return loader.data;
 }
@@ -328,7 +317,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 
 - (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
 	if (_loadDelegate) {
-		NSURLResponse *urlResponse = [[[inLoader.oauthResponse urlResponse] retain] autorelease];
+		NSURLResponse *urlResponse = [inLoader.oauthResponse urlResponse];
 		NSInteger status = [(NSHTTPURLResponse *)urlResponse statusCode];
 		if (200 == status) {
 			[_loadDelegate connectionFinishedWithResponse:urlResponse data:inData];
@@ -344,7 +333,7 @@ NSString * const MPOAuthAuthenticationMethodKey		= @"MPOAuthAuthenticationMethod
 
 - (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error {
 	if (_loadDelegate) {
-		NSURLResponse *urlResponse = [[[inLoader.oauthResponse urlResponse] retain] autorelease];
+		NSURLResponse *urlResponse = [inLoader.oauthResponse urlResponse];
 		[_loadDelegate connectionFailedWithResponse:urlResponse error:error];
 	}
 }

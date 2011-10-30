@@ -40,13 +40,13 @@
 }
 
 - (NSString *)stringByAddingURIPercentEscapesUsingEncoding:(NSStringEncoding)inEncoding {
-	NSString *escapedString = (NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-																				  (CFStringRef)self,
+	NSString *escapedString = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+																				  (__bridge CFStringRef)self,
 																				  NULL,
 																				  (CFStringRef)@":/?=,!$&'()*+;[]@#",
 																				  CFStringConvertNSStringEncodingToEncoding(inEncoding));
 	
-	return [escapedString autorelease];
+	return escapedString;
 }
 
 @end

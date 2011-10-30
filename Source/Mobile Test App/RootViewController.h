@@ -10,15 +10,12 @@
 
 @class MPOAuthAPI;
 
-@interface RootViewController : UIViewController {
-	MPOAuthAPI	*_oauthAPI;
-	UITextField *methodInput;
-	UITextField *parametersInput;
-	UITextView	*textOutput;
-}
+@interface RootViewController : UIViewController 
 
-@property (nonatomic, retain) IBOutlet UITextField *methodInput;
-@property (nonatomic, retain) IBOutlet UITextField *parametersInput;
+@property (nonatomic, strong) MPOAuthAPI *oauthAPI;
+@property (nonatomic, strong) IBOutlet UITextField *methodInput;
+@property (nonatomic, strong) IBOutlet UITextField *parametersInput;
+@property (nonatomic, strong) IBOutlet UITextField *textOutput;
 
 - (IBAction)clearCredentials;
 - (IBAction)reauthenticate;

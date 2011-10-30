@@ -11,8 +11,8 @@
 #import "MPOAuthCredentialConcreteStore.h"
 #import "MPOAuthCredentialConcreteStore+KeychainAdditions.h"
 
-@interface MPOAuthCredentialConcreteStoreKeychainTests : SenTestCase {
-	MPOAuthCredentialConcreteStore *store_;
-}
+@interface MPOAuthCredentialConcreteStoreKeychainTests : SenTestCase
+
+@property (nonatomic, strong) MPOAuthCredentialConcreteStore *store;
 
 @end

@@ -17,14 +17,13 @@
 	_signatureParameter = [[MPOAuthSignatureParameter alloc] initWithText:@"abcdefg" andSecret:@"123456789" forRequest:nil usingMethod:kMPOAuthSignatureMethodPlaintext];
 	
 	STAssertEqualObjects(_signatureParameter.value, @"123456789", @"The plain text signature method failed, the expected value was 123456789");
-	[_signatureParameter release];
 	_signatureParameter = nil;
 }
 
 
 	
 - (void)testHMACSHA1Signature {
-	NSMutableArray *parameters = [NSMutableArray arrayWithObject:[[[MPURLRequestParameter alloc] initWithName:@"file" andValue:@"vacation.jpg"] autorelease]];
+	NSMutableArray *parameters = [NSMutableArray arrayWithObject:[[MPURLRequestParameter alloc] initWithName:@"file" andValue:@"vacation.jpg"]];
 	MPOAuthURLRequest *request = [[MPOAuthURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://photots.example.net/photos"]
 														  andParameters:parameters];
 	
@@ -48,8 +47,6 @@
 	
 	STAssertEqualObjects(_signatureParameter.value, @"9WSQnB6gafEmHUlzF0cLtN0Tfvk=", @"The plain text signature method failed, the expected value was \"/AvKxaXD0WjtRZc8G6H9ENWTX5Q=\"");
 
-	[mockCredentials release];
-	[_signatureParameter release];
 	_signatureParameter = nil;
 }
 
@@ -99,9 +96,9 @@
 
 - (void)testConcatenationOfRequestElementsForBASEString_Core912 {
 	NSURL *testURL = [NSURL URLWithString:@"http://example.com/"];
-	MPURLRequestParameter *aParameter = [[[MPURLRequestParameter alloc] initWithName:@"n" andValue:@"v"] autorelease];
+	MPURLRequestParameter *aParameter = [[MPURLRequestParameter alloc] initWithName:@"n" andValue:@"v"];
 	NSMutableArray *parameterArray = [NSMutableArray arrayWithObject:aParameter];
-	MPOAuthURLRequest *urlRequest = [[[MPOAuthURLRequest alloc] initWithURL:testURL andParameters:[NSArray arrayWithObject:aParameter]] autorelease];
+	MPOAuthURLRequest *urlRequest = [[MPOAuthURLRequest alloc] initWithURL:testURL andParameters:[NSArray arrayWithObject:aParameter]];
 
 	NSString *baseString = [MPOAuthSignatureParameter signatureBaseStringUsingParameterString:[MPURLRequestParameter parameterStringForParameters:parameterArray]
 																				   forRequest:urlRequest];	
@@ -115,11 +112,11 @@
 	urlRequest.HTTPMethod = @"POST";
 	urlRequest.url = [NSURL URLWithString:@"https://photos.example.net/request_token"];
 	[parameterArray removeAllObjects];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_version" andValue:@"1.0"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_consumer_key" andValue:@"dpf43f3p2l4k3l03"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_timestamp" andValue:@"1191242090"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_nonce" andValue:@"hsu94j3884jdopsl"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_signature_method" andValue:@"PLAINTEXT"] autorelease]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_version" andValue:@"1.0"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_consumer_key" andValue:@"dpf43f3p2l4k3l03"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_timestamp" andValue:@"1191242090"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_nonce" andValue:@"hsu94j3884jdopsl"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_signature_method" andValue:@"PLAINTEXT"]];
 	// This is not part of the test, it's added later by the API, only here to document the discrepancy between the site's test and here
 //	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_signature" andValue:@"ignored"] autorelease]]; 
 	[parameterArray sortUsingSelector:@selector(compare:)];
@@ -132,14 +129,14 @@
 	urlRequest.HTTPMethod = @"GET";
 	urlRequest.url = [NSURL URLWithString:@"http://photos.example.net/photos"];
 	[parameterArray removeAllObjects];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_version" andValue:@"1.0"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_consumer_key" andValue:@"dpf43f3p2l4k3l03"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_token" andValue:@"nnch734d00sl2jdk"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_timestamp" andValue:@"1191242096"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_nonce" andValue:@"kllo9940pd9333jh"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_signature_method" andValue:@"HMAC-SHA1"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"file" andValue:@"vacation.jpg"] autorelease]];
-	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"size" andValue:@"original"] autorelease]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_version" andValue:@"1.0"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_consumer_key" andValue:@"dpf43f3p2l4k3l03"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_token" andValue:@"nnch734d00sl2jdk"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_timestamp" andValue:@"1191242096"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_nonce" andValue:@"kllo9940pd9333jh"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"oauth_signature_method" andValue:@"HMAC-SHA1"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"file" andValue:@"vacation.jpg"]];
+	[parameterArray addObject:[[MPURLRequestParameter alloc] initWithName:@"size" andValue:@"original"]];
 	// This is not part of the test, it's added later by the API, only here to document the discrepancy between the site's test and here
 	//	[parameterArray addObject:[[[MPURLRequestParameter alloc] initWithName:@"oauth_signature" andValue:@"ignored"] autorelease]];
 	[parameterArray sortUsingSelector:@selector(compare:)];
