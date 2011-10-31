@@ -9,7 +9,7 @@
 #import "MPOAuthCredentialConcreteStore+KeychainAdditions.h"
 #import <Security/Security.h>
 
-#if TARGET_OS_IPHONE && (!TARGET_IPHONE_SIMULATOR || __IPHONE_3_0)
+#if TARGET_OS_IPHONE
 
 @interface MPOAuthCredentialConcreteStore (TokenAdditionsiPhone)
 

@@ -6,7 +6,11 @@
 //  Copyright 2009 matrixPointer. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#	import <UIKit/UIKit.h>
+#else
+#	import <Foundation/Foundation.h>
+#endif
 #import "MPOAuthAuthenticationMethod.h"
 #import "MPOAuthAPI.h"
 #import "MPOAuthAPIRequestLoader.h"
@@ -20,7 +24,7 @@ extern NSString * const MPOAuthNotificationRequestTokenRejected;
 
 @protocol MPOAuthAuthenticationMethodOAuthDelegate;
 
-@interface MPOAuthAuthenticationMethodOAuth : MPOAuthAuthenticationMethod <MPOAuthAPIInternalClient> {
+@interface MPOAuthAuthenticationMethodOAuth : MPOAuthAuthenticationMethod {
 	BOOL									restartOnFail_;
 	BOOL									didRestartOnFail_;
 }

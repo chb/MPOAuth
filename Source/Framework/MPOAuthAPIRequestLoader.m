@@ -7,6 +7,7 @@
 //
 
 #import "MPOAuthAPIRequestLoader.h"
+#import "MPOAuthAPI.h"
 #import "MPOAuthURLRequest.h"
 #import "MPOAuthURLResponse.h"
 #import "MPOAuthConnection.h"
@@ -15,7 +16,6 @@
 #import "MPURLRequestParameter.h"
 #import "NSURLResponse+Encoding.h"
 #import "MPDebug.h"
-#import <objc/message.h>
 
 NSString * const MPOAuthNotificationRequestTokenReceived	= @"MPOAuthNotificationRequestTokenReceived";
 NSString * const MPOAuthNotificationRequestTokenRejected	= @"MPOAuthNotificationRequestTokenRejected";
@@ -43,8 +43,6 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 @end
 
 
-@protocol MPOAuthAPIInternalClient;
-
 @implementation MPOAuthAPIRequestLoader
 
 - (id)initWithURL:(NSURL *)inURL {
@@ -64,10 +62,9 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 @synthesize credentials = _credentials;
 @synthesize oauthRequest = _oauthRequest;
 @synthesize oauthResponse = _oauthResponse;
+@synthesize delegate = _delegate;
 @synthesize data = _dataBuffer;
 @synthesize responseString = _dataAsString;
-@synthesize target = _target;
-@synthesize action = _action;
 
 #pragma mark -
 
@@ -105,9 +102,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	MPLog(@"%@, %@", connection, error);
-	if ([_target respondsToSelector:@selector(loader:didFailWithError:)]) {
-		[_target performSelector: @selector(loader:didFailWithError:) withObject: self withObject: error];
-	}
+	[_delegate loader:self didFailWithError:error];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -129,16 +124,7 @@ NSString * const MPOAuthNotificationErrorHasOccurred		= @"MPOAuthNotificationErr
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	[self _interrogateResponseForOAuthData];
-
-	if (_action) {
-		if ([_target conformsToProtocol:@protocol(MPOAuthAPIInternalClient)]) {
-			objc_msgSend(_target, _action, self.data);
-			//[_target performSelector:_action withObject:self withObject:self.data];
-		} else {
-			objc_msgSend(_target, _action, self.oauthRequest.url, self.responseString);
-			//[_target performSelector:_action withObject:self.oauthRequest.url withObject:self.responseString];
-		}
-	}
+	[_delegate loader:self didReceiveData:self.data];
 }
 
 #pragma mark -

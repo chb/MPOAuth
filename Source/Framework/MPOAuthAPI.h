@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "MPOAuthCredentialStore.h"
 #import "MPOAuthParameterFactory.h"
+#import "MPOAuthAPIRequestLoader.h"
 
 extern NSString * const MPOAuthNotificationAccessTokenReceived;
 extern NSString * const MPOAuthNotificationAccessTokenRejected;
@@ -64,12 +65,9 @@ typedef enum {
 @end
 
 
-@protocol MPOAuthAPIInternalClient
-@end
-
 @class MPOAuthAuthenticationMethod;
 
-@interface MPOAuthAPI : NSObject <MPOAuthAPIInternalClient>
+@interface MPOAuthAPI : NSObject <MPOAuthAPIRequestLoaderDelegate>
 
 @property (nonatomic, readwrite, assign) id <MPOAuthAPIAuthDelegate> authDelegate;
 @property (nonatomic, readwrite, assign) id <MPOAuthAPILoadDelegate> loadDelegate;
@@ -82,7 +80,7 @@ typedef enum {
 
 @property (nonatomic, readonly, assign) MPOAuthAuthenticationState authenticationState;
 
-
+// Publicly useful methods
 - (id)initWithCredentials:(NSDictionary *)inCredentials andBaseURL:(NSURL *)inURL;
 - (id)initWithCredentials:(NSDictionary *)inCredentials authenticationURL:(NSURL *)inAuthURL andBaseURL:(NSURL *)inBaseURL;
 - (id)initWithCredentials:(NSDictionary *)inCredentials authenticationURL:(NSURL *)inAuthURL andBaseURL:(NSURL *)inBaseURL autoStart:(BOOL)aFlag;
@@ -93,17 +91,11 @@ typedef enum {
 
 - (void)performMethod:(NSString *)inMethod withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
 - (void)performMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters delegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
-- (void)performMethod:(NSString *)inMethod withTarget:(id)inTarget andAction:(SEL)inAction;
-- (void)performMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
-- (void)performMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
 
 - (void)performPOSTMethod:(NSString *)inMethod withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
 - (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters delegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
-- (void)performPOSTMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
-- (void)performPOSTMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id)inTarget andAction:(SEL)inAction;
 
 - (void)performURLRequest:(NSURLRequest *)inRequest withDelegate:(id <MPOAuthAPILoadDelegate>)aDelegate;
-- (void)performURLRequest:(NSURLRequest *)inRequest withTarget:(id)inTarget andAction:(SEL)inAction;
 
 - (NSData *)dataForMethod:(NSString *)inMethod;
 - (NSData *)dataForMethod:(NSString *)inMethod withParameters:(NSArray *)inParameters;
@@ -114,6 +106,11 @@ typedef enum {
 - (void)removeCredentialNamed:(NSString *)inName;
 
 - (void)discardCredentials;
+
+// Mostly internally used methods
+- (void)performMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id <MPOAuthAPIRequestLoaderDelegate>)inTarget;
+- (void)performPOSTMethod:(NSString *)inMethod atURL:(NSURL *)inURL withParameters:(NSArray *)inParameters withTarget:(id <MPOAuthAPIRequestLoaderDelegate>)inTarget;
+- (void)performURLRequest:(NSURLRequest *)inRequest withTarget:(id <MPOAuthAPIRequestLoaderDelegate>)inTarget;
 
 
 @end

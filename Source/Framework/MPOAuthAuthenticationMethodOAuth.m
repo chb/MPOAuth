@@ -41,7 +41,6 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 - (void)_authenticationRequestForRequestToken;
 - (void)_authenticationRequestForUserPermissionsConfirmationAtURL:(NSURL *)inURL;
 - (void)_authenticationRequestForAccessToken;
-- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error;
 
 @end
 
@@ -131,7 +130,7 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 		}
 		
 		// perform method
-		[self.oauthAPI performMethod:nil atURL:self.oauthRequestTokenURL withParameters:params withTarget:self andAction:nil];
+		[self.oauthAPI performMethod:nil atURL:self.oauthRequestTokenURL withParameters:params withTarget:self];
 	}
 	else if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
 		NSDictionary *errDict = [NSDictionary dictionaryWithObjectsAndKeys:@"Can not authenticate without oauthRequestTokenURL", NSLocalizedDescriptionKey, nil];
@@ -162,13 +161,13 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 	
 	if (self.oauthGetAccessTokenURL) {
 		MPLog(@"--> Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
-		[self.oauthAPI performMethod:nil atURL:self.oauthGetAccessTokenURL withParameters:params withTarget:self andAction:nil];
+		[self.oauthAPI performMethod:nil atURL:self.oauthGetAccessTokenURL withParameters:params withTarget:self];
 	}
 }
 
 #pragma mark -
 
-- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didReceiveData:(NSData *)inData {
 	NSDictionary *oauthResponseParameters = inLoader.oauthResponse.oauthParameters;
 	NSString *xoauthRequestAuthURL = [oauthResponseParameters objectForKey:@"xoauth_request_auth_url"]; // a common custom extension, used by Yahoo!
 	NSURL *userAuthURL = xoauthRequestAuthURL ? [NSURL URLWithString:xoauthRequestAuthURL] : self.oauthAuthorizeTokenURL;

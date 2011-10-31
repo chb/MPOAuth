@@ -1,5 +1,5 @@
 //
-//  MPOAuthAuthenticationMethodAuthExchange.h
+//  MPOAuthAuthenticationMethodTwoLeggedDelegate.h
 //  MPOAuthMobile
 //
 //  Created by Pascal Pfiffner on 09/16/2011.
@@ -10,19 +10,18 @@
 #import "MPOAuthAPI.h"
 #import "MPOAuthAuthenticationMethod.h"
 
-@protocol MPOAuthAuthenticationMethodTwoLeggedDelegate;
-
-@interface MPOAuthAuthenticationMethodTwoLegged : MPOAuthAuthenticationMethod <MPOAuthAPIInternalClient>
-
-@property (nonatomic, readwrite, unsafe_unretained) id <MPOAuthAuthenticationMethodTwoLeggedDelegate> delegate;
-
-
-@end
 
 @protocol MPOAuthAuthenticationMethodTwoLeggedDelegate <NSObject>
 
 @optional
 - (void)authenticationDidSucceed;
 - (void)authenticationDidFailWithError:(NSError *)error;
+
+@end
+
+
+@interface MPOAuthAuthenticationMethodTwoLegged : MPOAuthAuthenticationMethod
+
+@property (nonatomic, readwrite, unsafe_unretained) id <MPOAuthAuthenticationMethodTwoLeggedDelegate> delegate;
 
 @end

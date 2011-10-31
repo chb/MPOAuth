@@ -39,8 +39,7 @@
 			[self.oauthAPI performPOSTMethod:nil
 									   atURL:self.oauthGetAccessTokenURL
 							  withParameters:[NSArray arrayWithObjects:usernameParameter, passwordParameter, clientModeParameter, nil]
-								  withTarget:self
-								   andAction:nil];
+								  withTarget:self];
 		}
 		else {
 			MPLog(@"No username and/or no password (%@:%@)", username, password);
@@ -57,7 +56,7 @@
 	
 }
 
-- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didReceiveData:(NSData *)inData {
 	MPLog(@"loaded %@, and got:\n %@", inLoader, inData);
 	NSString *responseString = [inLoader responseString];
 	NSDictionary *responseParameters = [MPURLRequestParameter parameterDictionaryFromString:responseString];
@@ -73,7 +72,7 @@
 	}
 	
 	[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
-	
 }
+
 
 @end

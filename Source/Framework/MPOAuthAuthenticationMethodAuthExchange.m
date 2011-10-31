@@ -45,8 +45,7 @@
 		[self.oauthAPI performPOSTMethod:nil
 								   atURL:self.oauthGetAccessTokenURL
 						  withParameters:[NSArray arrayWithObjects:usernameParameter, passwordParameter, nil]
-							  withTarget:self
-							   andAction:nil];
+							  withTarget:self];
 		
 	} else if (credentials.accessToken && credentials.accessTokenSecret) {
 		NSTimeInterval expiryDateInterval = [[NSUserDefaults standardUserDefaults] doubleForKey:MPOAuthTokenRefreshDateDefaultsKey];
@@ -59,7 +58,7 @@
 	
 }
 
-- (void)_performedLoad:(MPOAuthAPIRequestLoader *)inLoader receivingData:(NSData *)inData {
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didReceiveData:(NSData *)inData {
 	MPLog(@"loaded %@, and got:\n %@", inLoader, inData);
 	NSString *accessToken = nil;
 	NSString *accessTokenSecret = nil;

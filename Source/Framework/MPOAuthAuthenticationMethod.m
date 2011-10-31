@@ -126,8 +126,7 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 	[self.oauthAPI performMethod:nil
 						   atURL:self.oauthGetAccessTokenURL
 				  withParameters:sessionHandleParameter ? [NSArray arrayWithObject:sessionHandleParameter] : nil
-					  withTarget:nil
-					   andAction:nil];
+					  withTarget:nil];
 	
 }
 
@@ -136,5 +135,14 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 - (void)_automaticallyRefreshAccessToken:(NSTimer *)inTimer {
 	[self refreshAccessToken];
 }
+
+#pragma mark - MPOAuthAPIRequestLoaderDelegate
+
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didReceiveData:(NSData *)inData {
+}
+
+- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didFailWithError:(NSError *)error {
+}
+
 
 @end

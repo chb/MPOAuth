@@ -7,12 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MPOAuthAPIRequestLoader.h"
 
 extern NSString * const MPOAuthAccessTokenURLKey;
 
 @class MPOAuthAPI;
 
-@interface MPOAuthAuthenticationMethod : NSObject
+@interface MPOAuthAuthenticationMethod : NSObject <MPOAuthAPIRequestLoaderDelegate>
 
 @property (nonatomic, readwrite, unsafe_unretained) MPOAuthAPI *oauthAPI;
 @property (nonatomic, readwrite, strong) NSURL *oauthGetAccessTokenURL;

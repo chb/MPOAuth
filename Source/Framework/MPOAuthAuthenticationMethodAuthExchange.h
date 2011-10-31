@@ -10,7 +10,7 @@
 #import "MPOAuthAPI.h"
 #import "MPOAuthAuthenticationMethod.h"
 
-@interface MPOAuthAuthenticationMethodAuthExchange : MPOAuthAuthenticationMethod <MPOAuthAPIInternalClient> {
+@interface MPOAuthAuthenticationMethodAuthExchange : MPOAuthAuthenticationMethod {
 
 }
 
