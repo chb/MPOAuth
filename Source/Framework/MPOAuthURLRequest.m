@@ -120,6 +120,17 @@
 		}
 	}
 	
+	// a PUT call
+	else if ([[self HTTPMethod] isEqualToString:@"PUT"]) {
+		NSString *putDataString = [MPURLRequestParameter parameterStringForParameters:nonOauthParameters];
+		NSData *putData = [putDataString dataUsingEncoding:NSUTF8StringEncoding];
+		MPLog(@"putDataString - %@", postDataString);
+		
+		[aRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+		[aRequest setValue:[NSString stringWithFormat:@"%d", [putData length]] forHTTPHeaderField:@"Content-Length"];
+		[aRequest setHTTPBody:putData];
+	}
+	
 	// unimplemented method
 	else {
 		[NSException raise:@"UnhandledHTTPMethodException" format:@"The requested HTTP method, %@, is not supported", self.HTTPMethod];
