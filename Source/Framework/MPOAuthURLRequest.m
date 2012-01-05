@@ -83,19 +83,18 @@
 
 - (NSURLRequest  *)urlRequestSignedWithSecret:(NSString *)inSecret usingMethod:(NSString *)inScheme {
 	NSMutableURLRequest *aRequest = [self.urlRequest mutableCopy];
-
+	
 	if (!aRequest ) {
 		aRequest = [[NSMutableURLRequest alloc] init];
 	}
 	[aRequest setHTTPMethod:self.HTTPMethod];
 	
 	NSArray *nonOauthParameters = [self nonOAuthParameters];
+	BOOL addNonOauthParametersToURL = NO;
 	
 	// a GET call
 	if ([[self HTTPMethod] isEqualToString:@"GET"]) {
-		if ([nonOauthParameters count]) {
-			self.url = [_url urlByAddingParameters:nonOauthParameters];
-		}
+		addNonOauthParametersToURL = ([nonOauthParameters count] > 0);
 	}
 	
 	// a POST call
@@ -138,12 +137,15 @@
 	
 	// Signing
 	[_parameters sortUsingSelector:@selector(compare:)];
-	NSMutableString *parameterString = [[NSMutableString alloc] initWithString:[MPURLRequestParameter parameterStringForParameters:self.parameters]];
+	NSMutableString *parameterString = [[NSMutableString alloc] initWithString:[MPURLRequestParameter parameterStringForParameters:_parameters]];
 	MPOAuthSignatureParameter *signatureParameter = [[MPOAuthSignatureParameter alloc] initWithText:parameterString andSecret:inSecret forRequest:self usingMethod:inScheme];
 	
 	[parameterString appendFormat:@"&%@", [signatureParameter URLEncodedParameterString]];
 	
 	// compose the request
+	if (addNonOauthParametersToURL) {
+		self.url = [_url urlByAddingParameters:nonOauthParameters];
+	}
 	NSArray *allParameters = [_parameters arrayByAddingObject:signatureParameter];
 	[aRequest setValue:[self authorizationHeaderValueFromParameterArray:allParameters] forHTTPHeaderField:@"Authorization"];		// always use the Authorization Header
 	
