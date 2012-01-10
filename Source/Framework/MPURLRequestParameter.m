@@ -14,28 +14,29 @@
 
 + (NSArray *)parametersFromString:(NSString *)inString {
 	NSMutableArray *foundParameters = [NSMutableArray arrayWithCapacity:10];
-	NSScanner *parameterScanner = [[NSScanner alloc] initWithString:inString];
-	NSString *name = nil;
-	NSString *value = nil;
-	MPURLRequestParameter *currentParameter = nil;
-	
-	while (![parameterScanner isAtEnd]) {
-		name = nil;
-		value = nil;
+	if ([inString length] > 0) {
+		NSScanner *parameterScanner = [[NSScanner alloc] initWithString:inString];
+		NSString *name = nil;
+		NSString *value = nil;
+		MPURLRequestParameter *currentParameter = nil;
 		
-		[parameterScanner scanUpToString:@"=" intoString:&name];
-		[parameterScanner scanString:@"=" intoString:NULL];
-		[parameterScanner scanUpToString:@"&" intoString:&value];
-		[parameterScanner scanString:@"&" intoString:NULL];		
-		
-		currentParameter = [[MPURLRequestParameter alloc] init];
-		currentParameter.name = name;
-		currentParameter.value = [value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-		
-		[foundParameters addObject:currentParameter];
-		
+		while (![parameterScanner isAtEnd]) {
+			name = nil;
+			value = nil;
+			
+			[parameterScanner scanUpToString:@"=" intoString:&name];
+			[parameterScanner scanString:@"=" intoString:NULL];
+			[parameterScanner scanUpToString:@"&" intoString:&value];
+			[parameterScanner scanString:@"&" intoString:NULL];		
+			
+			currentParameter = [[MPURLRequestParameter alloc] init];
+			currentParameter.name = name;
+			currentParameter.value = [value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+			
+			[foundParameters addObject:currentParameter];
+			
+		}
 	}
-	
 	
 	return foundParameters;
 }
