@@ -20,7 +20,7 @@
 	MPOAuthCredentialConcreteStore *__unsafe_unretained _credentials;
 }
 
-@property (nonatomic, readonly) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
+@property (nonatomic, readonly, assign) id <MPOAuthCredentialStore, MPOAuthParameterFactory> credentials;
 
 + (MPOAuthConnection *)connectionWithRequest:(MPOAuthURLRequest *)inRequest delegate:(id)inDelegate credentials:(NSObject <MPOAuthCredentialStore, MPOAuthParameterFactory> *)inCredentials;
 + (NSData *)sendSynchronousRequest:(MPOAuthURLRequest *)inRequest usingCredentials:(NSObject <MPOAuthCredentialStore, MPOAuthParameterFactory> *)inCredentials returningResponse:(MPOAuthURLResponse **)outResponse error:(NSError **)inError;

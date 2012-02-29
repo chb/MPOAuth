@@ -130,6 +130,11 @@
 		[aRequest setHTTPBody:putData];
 	}
 	
+	// a DELETE call
+	else if ([[self HTTPMethod] isEqualToString:@"DELETE"]) {
+		addNonOauthParametersToURL = ([nonOauthParameters count] > 0);
+	}
+	
 	// unimplemented method
 	else {
 		[NSException raise:@"UnhandledHTTPMethodException" format:@"The requested HTTP method, %@, is not supported", self.HTTPMethod];

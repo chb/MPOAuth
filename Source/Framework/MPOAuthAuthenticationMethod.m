@@ -42,6 +42,9 @@ NSString * const MPOAuthAccessTokenURLKey					= @"MPOAuthAccessTokenURL";
 		Class methodClass = nil;
 		if ([inMethod length] > 0) {
 			methodClass = NSClassFromString(inMethod);
+			if (!methodClass) {
+				NSLog(@"The authentication class \"%@\" is not loaded, falling back to standard method", inMethod);
+			}
 		}
 		if (!methodClass) {
 			methodClass = [[self class] _authorizationMethodClassForURL:inURL withConfiguration:&configuration];

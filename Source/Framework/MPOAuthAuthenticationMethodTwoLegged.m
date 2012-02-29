@@ -34,73 +34,19 @@
 	id <MPOAuthCredentialStore> credentials = [self.oauthAPI credentials];
 	
 	// no access token, get a new one
-	if (!credentials.accessToken || !credentials.accessTokenSecret) {
-		MPLog(@"Performing Access Token Request: %@", self.oauthGetAccessTokenURL);
-		NSString *username = [[self.oauthAPI credentials] username];
-		NSString *password = [[self.oauthAPI credentials] password];
-		NSAssert(username, @"AuthTwoLegged requires a Username credential");
-		NSAssert(password, @"AuthTwoLegged requires a Password credential");
+	if (!credentials.consumerKey || !credentials.consumerSecret) {
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@"Consumer key or secret is missing" forKey:NSLocalizedDescriptionKey];
 		
-		MPURLRequestParameter *usernameParameter = [[MPURLRequestParameter alloc] initWithName:@"username" andValue:username];
-		MPURLRequestParameter *passwordParameter = [[MPURLRequestParameter alloc] initWithName:@"password" andValue:password];
-		
-		[self.oauthAPI performPOSTMethod:nil
-								   atURL:self.oauthGetAccessTokenURL
-						  withParameters:[NSArray arrayWithObjects:usernameParameter, passwordParameter, nil]
-							  withTarget:self];
-		
+		[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationErrorHasOccurred
+															object:self.oauthAPI
+														  userInfo:userInfo];
 		return;
 	}
 	
-	// we already have an access token
-	[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialPassword];
+	// alright, we have the key and the secret, that's all we need
 	[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
-	
-	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
-							credentials.accessToken, @"oauth_token",
-							credentials.accessTokenSecret, @"oauth_token_secret",
-							nil];
-	[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationOAuthCredentialsReady
-														object:self.oauthAPI
-													  userInfo:params];
-	
 	if ([delegate_ respondsToSelector:@selector(authenticationDidSucceed)]) {
 		[delegate_ authenticationDidSucceed];
-	}
-}
-
-- (void)loader:(MPOAuthAPIRequestLoader *)inLoader didReceiveData:(NSData *)inData
-{
-	NSString *accessToken = nil;
-	NSString *accessTokenSecret = nil;
-	
-	// did we get a token?
-	NSDictionary *params = [MPURLRequestParameter parameterDictionaryFromString:inLoader.responseString];
-	accessToken = [params objectForKey:@"oauth_token"];
-	accessTokenSecret = [params objectForKey:@"oauth_token_secret"];
-	
-	// yes, we got tokens!
-	if (accessToken && accessTokenSecret) {
-		[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialPassword];
-		[self.oauthAPI setCredential:accessToken withName:kMPOAuthCredentialAccessToken];
-		[self.oauthAPI setCredential:accessTokenSecret withName:kMPOAuthCredentialAccessTokenSecret];
-		
-		[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
-		
-		[[NSNotificationCenter defaultCenter] postNotificationName:MPOAuthNotificationOAuthCredentialsReady
-															object:self.oauthAPI
-														  userInfo:params];
-		
-		if ([delegate_ respondsToSelector:@selector(authenticationDidSucceed)]) {
-			[delegate_ authenticationDidSucceed];
-		}
-	}
-	
-	// no tokens for us
-	else if ([delegate_ respondsToSelector:@selector(authenticationDidFailWithError:)]) {
-		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:(inLoader.responseString ? inLoader.responseString : @"No Answer") forKey:NSLocalizedDescriptionKey];
-		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:userInfo];
-		[delegate_ authenticationDidFailWithError:error];
 	}
 }
 
