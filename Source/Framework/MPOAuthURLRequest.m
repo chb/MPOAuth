@@ -72,7 +72,7 @@
 - (NSString *)authorizationHeaderValueFromParameterArray:(NSArray *)parameterArray {
 	NSMutableArray *authParts = [NSMutableArray arrayWithCapacity:[parameterArray count]];
 	for (MPURLRequestParameter *param in parameterArray) {
-		if ([@"oauth_" isEqualToString:[param.name substringToIndex:6]] && param.value) {
+		if ([param.name length] >= 6 && [@"oauth_" isEqualToString:[param.name substringToIndex:6]] && param.value) {
 			[authParts addObject:[param URLEncodedParameterString]];
 		}
 	}
