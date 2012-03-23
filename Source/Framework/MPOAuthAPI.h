@@ -17,12 +17,6 @@ extern NSString * const MPOAuthNotificationAccessTokenRefreshed;
 extern NSString * const MPOAuthNotificationOAuthCredentialsReady;
 extern NSString * const MPOAuthNotificationErrorHasOccurred;
 
-extern NSString * const MPOAuthCredentialRequestTokenKey;
-extern NSString * const MPOAuthCredentialRequestTokenSecretKey;
-extern NSString * const MPOAuthCredentialAccessTokenKey;
-extern NSString * const MPOAuthCredentialAccessTokenSecretKey;
-extern NSString * const MPOAuthCredentialSessionHandleKey;
-
 extern NSString * const MPOAuthTokenRefreshDateDefaultsKey;
 
 extern NSString * const MPOAuthBaseURLKey;

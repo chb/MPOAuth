@@ -12,11 +12,6 @@
 #import "MPOAuthCredentialConcreteStore+KeychainAdditions.h"
 #import "NSString+URLEscapingAdditions.h"
 
-extern NSString * const MPOAuthCredentialRequestTokenKey;
-extern NSString * const MPOAuthCredentialRequestTokenSecretKey;
-extern NSString * const MPOAuthCredentialAccessTokenKey;
-extern NSString * const MPOAuthCredentialAccessTokenSecretKey;
-extern NSString * const MPOAuthCredentialSessionHandleKey;
 
 @interface MPOAuthCredentialConcreteStore ()
 
