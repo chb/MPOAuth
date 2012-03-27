@@ -189,6 +189,9 @@ NSString * const MPOAuthUserAuthorizationMobileURLKey		= @"MPOAuthUserAuthorizat
 				MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
 				[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
 			}
+			else {
+				MPLog(@"--> Not automatically performing User Auth Request, you should be doing this right now.");
+			}
 		}
 	}
 	else {
