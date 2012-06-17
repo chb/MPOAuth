@@ -92,24 +92,24 @@
 	NSArray *nonOauthParameters = [self nonOAuthParameters];
 	BOOL addNonOauthParametersToURL = NO;
 	
-	// a GET call
-	if ([[self HTTPMethod] isEqualToString:@"GET"]) {
+	// a GET or DELETE call
+	if ([_httpMethod isEqualToString:@"GET"] || [_httpMethod isEqualToString:@"DELETE"]) {
 		addNonOauthParametersToURL = ([nonOauthParameters count] > 0);
 	}
 	
-	// a POST call
-	else if  ([[self HTTPMethod] isEqualToString:@"POST"]) {
+	// a POST or PUT call
+	else if  ([_httpMethod isEqualToString:@"POST"] || [_httpMethod isEqualToString:@"PUT"]) {
 		if ([nonOauthParameters count] > 0 && [aRequest HTTPBody]) {
 			[NSException raise:@"MalformedHTTPPOSTMethodException" format:@"The request has both an HTTP Body and additional parameters. This is not supported."];
 		}
 		else if ([nonOauthParameters count] > 0) {
-			NSString *postDataString = [MPURLRequestParameter parameterStringForParameters:nonOauthParameters];
-			NSData *postData = [postDataString dataUsingEncoding:NSUTF8StringEncoding];
-			MPLog(@"postDataString - %@", postDataString);
+			NSString *dataString = [MPURLRequestParameter parameterStringForParameters:nonOauthParameters];
+			NSData *myData = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+			MPLog(@"%@ dataString - %@", _httpMethod, dataString);
 			
 			[aRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-			[aRequest setValue:[NSString stringWithFormat:@"%d", [postData length]] forHTTPHeaderField:@"Content-Length"];
-			[aRequest setHTTPBody:postData];
+			[aRequest setValue:[NSString stringWithFormat:@"%d", [myData length]] forHTTPHeaderField:@"Content-Length"];
+			[aRequest setHTTPBody:myData];
 		}
 		else if ([aRequest HTTPBody]) {
 			NSString *bodyHash = [MPOAuthSignatureParameter HMAC_SHA1DigestForData:[aRequest HTTPBody]];
@@ -119,25 +119,9 @@
 		}
 	}
 	
-	// a PUT call
-	else if ([[self HTTPMethod] isEqualToString:@"PUT"]) {
-		NSString *putDataString = [MPURLRequestParameter parameterStringForParameters:nonOauthParameters];
-		NSData *putData = [putDataString dataUsingEncoding:NSUTF8StringEncoding];
-		MPLog(@"putDataString - %@", postDataString);
-		
-		[aRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-		[aRequest setValue:[NSString stringWithFormat:@"%d", [putData length]] forHTTPHeaderField:@"Content-Length"];
-		[aRequest setHTTPBody:putData];
-	}
-	
-	// a DELETE call
-	else if ([[self HTTPMethod] isEqualToString:@"DELETE"]) {
-		addNonOauthParametersToURL = ([nonOauthParameters count] > 0);
-	}
-	
 	// unimplemented method
 	else {
-		[NSException raise:@"UnhandledHTTPMethodException" format:@"The requested HTTP method, %@, is not supported", self.HTTPMethod];
+		[NSException raise:@"UnhandledHTTPMethodException" format:@"The requested HTTP method, %@, is not supported", _httpMethod];
 	}
 	
 	// Signing

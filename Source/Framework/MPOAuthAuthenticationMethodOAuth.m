@@ -20,12 +20,6 @@ NSString * const MPOAuthRequestTokenURLKey					= @"MPOAuthRequestTokenURL";
 NSString * const MPOAuthUserAuthorizationURLKey				= @"MPOAuthUserAuthorizationURL";
 NSString * const MPOAuthUserAuthorizationMobileURLKey		= @"MPOAuthUserAuthorizationMobileURL";
 
-NSString * const MPOAuthCredentialRequestTokenKey			= @"oauth_token_request";
-NSString * const MPOAuthCredentialRequestTokenSecretKey		= @"oauth_token_request_secret";
-NSString * const MPOAuthCredentialAccessTokenKey			= @"oauth_token_access";
-NSString * const MPOAuthCredentialAccessTokenSecretKey		= @"oauth_token_access_secret";
-NSString * const MPOAuthCredentialSessionHandleKey			= @"oauth_session_handle";
-NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 
 @interface MPOAuthAPI ()
 
@@ -195,6 +189,9 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 				MPLog(@"--> Automatically Performing User Auth Request: %@", userAuthURL);
 				[self _authenticationRequestForUserPermissionsConfirmationAtURL:userAuthURL];
 			}
+			else {
+				MPLog(@"--> Not automatically performing User Auth Request, you should be doing this right now.");
+			}
 		}
 	}
 	else {
@@ -228,19 +225,20 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 
 - (void)_requestTokenRejected:(NSNotification *)inNotification {
 	restartOnFail_ = YES;
-	[self.oauthAPI removeCredentialNamed:MPOAuthCredentialRequestTokenKey];
-	[self.oauthAPI removeCredentialNamed:MPOAuthCredentialRequestTokenSecretKey];
+	
+	[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialRequestToken];
+	[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialRequestTokenSecret];
 }
 
 - (void)_accessTokenReceived:(NSNotification *)inNotification {
-	[self.oauthAPI removeCredentialNamed:MPOAuthCredentialRequestTokenKey];
-	[self.oauthAPI removeCredentialNamed:MPOAuthCredentialRequestTokenSecretKey];
+	[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialRequestToken];
+	[self.oauthAPI removeCredentialNamed:kMPOAuthCredentialRequestTokenSecret];
 	
 	[self.oauthAPI setCredential:[[inNotification userInfo] objectForKey:@"oauth_token"] withName:kMPOAuthCredentialAccessToken];
 	[self.oauthAPI setCredential:[[inNotification userInfo] objectForKey:@"oauth_token_secret"] withName:kMPOAuthCredentialAccessTokenSecret];
 	
-	if ([[inNotification userInfo] objectForKey:MPOAuthCredentialSessionHandleKey]) {
-		[self.oauthAPI setCredential:[[inNotification userInfo] objectForKey:MPOAuthCredentialSessionHandleKey] withName:kMPOAuthCredentialSessionHandle];
+	if ([[inNotification userInfo] objectForKey:@"oauth_session_handle"]) {
+		[self.oauthAPI setCredential:[[inNotification userInfo] objectForKey:@"oauth_session_handle"] withName:kMPOAuthCredentialSessionHandle];
 	}
 
 	[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
