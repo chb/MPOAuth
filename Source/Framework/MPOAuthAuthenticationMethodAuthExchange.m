@@ -11,6 +11,7 @@
 #import "MPOAuthAPIRequestLoader.h"
 #import "MPOAuthCredentialStore.h"
 #import "MPURLRequestParameter.h"
+#import "MPDebug.h"
 
 #import <libxml/parser.h>
 #import <libxml/xpath.h>

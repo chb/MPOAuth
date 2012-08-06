@@ -9,6 +9,7 @@
 #import "MPURLRequestParameter.h"
 #import "MPOAuthAPI.h"
 #import "NSString+URLEscapingAdditions.h"
+#import "MPDebug.h"
 
 @implementation MPURLRequestParameter
 

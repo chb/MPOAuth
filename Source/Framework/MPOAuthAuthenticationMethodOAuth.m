@@ -13,6 +13,7 @@
 #import "MPOAuthCredentialStore.h"
 #import "MPOAuthCredentialConcreteStore.h"
 #import "MPURLRequestParameter.h"
+#import "MPDebug.h"
 
 #import "NSURL+MPURLParameterAdditions.h"
 

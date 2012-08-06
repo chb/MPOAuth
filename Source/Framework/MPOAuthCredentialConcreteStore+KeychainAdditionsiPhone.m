@@ -8,6 +8,7 @@
 
 #import "MPOAuthCredentialConcreteStore+KeychainAdditions.h"
 #import <Security/Security.h>
+#import "MPDebug.h"
 
 #if TARGET_OS_IPHONE
 
