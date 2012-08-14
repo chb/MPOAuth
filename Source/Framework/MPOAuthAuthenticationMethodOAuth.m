@@ -105,7 +105,7 @@ NSString * const MPOAuthUserAuthorizationMobileURLKey		= @"MPOAuthUserAuthorizat
 		if (callbackURL) {
 			callbackParameter = [[MPURLRequestParameter alloc] initWithName:@"oauth_callback" andValue:[callbackURL absoluteString]];
 		} else {
-			// oob = "Out of bounds"
+			// oob = "Out of band"
 			callbackParameter = [[MPURLRequestParameter alloc] initWithName:@"oauth_callback" andValue:@"oob"];
 		}
 		
